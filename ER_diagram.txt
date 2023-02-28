@@ -1,0 +1,50 @@
+[DeliveryRequest](requestID*);
+[AcceptableRequest](); /*ISA under delivery req*/
+[UnacceptableRequest](); /*ISA under delivery req*/
+[AcceptedRequest](creditCard, paymentTimestamp); /*ISA under acceptable req*/
+[WithdrawnRequest](); /*ISA under acceptable req*/
+[NormalDeliveryRequest](); /*ISA under accepted req*/
+[ReturnDeliveryRequest](); /*ISA under accepted req*/
+DeliveryRequest --> {AcceptableRequest, UnacceptableRequest};
+AcceptableRequest --> {AcceptedRequest, WithdrawnRequest};
+AcceptedRequest --> {NormalDeliveryRequest, ReturnDeliveryRequest};
+
+[[Package]](packageID*, weight, dimensions);
+[Employee](employeeID*);
+[Customer](customerID*);
+
+[[Leg]]();
+[[FirstLeg]](weight, dimensions);
+[[IntermediateLeg]]();
+[[FinalLeg]](destAddress);
+[Facility]();
+<Delivers>(srcAddress, destAddress);
+<Precedes>(); /*a leg precedes another leg*/
+<<Has>>(); /* Accepted req has leg*/
+Leg --- Precedes [prev];
+Leg --- Precedes [next];
+Leg ==> {FirstLeg, IntermediateLeg, FinalLeg};
+Leg --- Delivers;
+Facility --- Delivers [src];
+Facility --- Delivers [dest];
+AcceptedRequest --- Has;
+Leg ==> Has;
+
+[[Pickup]]();
+<HandlesReq>(); /*for employee*/
+<HandlesLeg>(); /*for employee*/
+<Makes>(); /* Customer makes a del req*/
+<<Consists>>(); /*del req consists of package*/
+<<Records>>(); /*each leg records delivery pickups*/
+
+Employee --- HandlesReq;
+DeliveryRequest --- HandlesReq;
+Employee --- HandlesLeg;
+Leg ==> HandlesLeg;
+Leg === Records;
+Pickup --- Records;
+Customer === Makes;
+DeliveryRequest --- Makes;
+DeliveryRequest === Consists;
+Package ==> Consists;
+
