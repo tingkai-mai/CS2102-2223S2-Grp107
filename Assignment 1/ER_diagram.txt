@@ -42,7 +42,8 @@ AcceptedRequests --- Has;
 Legs ==> Has;
 
 /* === Relationship/Aggregation Tables === */
-[[UnsuccessfulPickups]]();
+[[UnsuccessfulPickups]](timestamp, reason);
+<PicksUp>();
 <PaidBy>();
 <Processes>(); /* Employee processes a DR. NOTE: Different from handling! */
 <HandlesRequest>(); /* Employee handles a DR */
@@ -104,6 +105,11 @@ an AcceptedRequest can have 0 or more unsuccesful pickups, but
 an unsuccessful pickup has only one AcceptedRequest*/
 AcceptedRequests ==> Records;
 UnsuccessfulPickups  --- Records;
+
+/* An unsuccesful pickup is always done so by an Employee, and an Employee can
+only attempt each unsuccesful pickup */
+UnsuccessfulPickups ==> PicksUp;
+Employees ==> PicksUp;
 
 DeliveryRequests --> {AcceptableRequests, UnacceptableRequests};
 AcceptableRequests --> {AcceptedRequests, WithdrawnRequests};
