@@ -32,27 +32,25 @@
 [[FirstLegs]](weight, dimensions(height, width, depth));
 [[IntermediateLegs]]();
 [[FinalLegs]]();
-<Delivers>(srcAddress, destAddress);
+[<Delivers>]();
 <Precedes>(); /*a leg precedes another leg*/
 <<Has>>(); /* Accepted req has leg*/
 Legs --- Precedes [prev];
 Legs --- Precedes [next];
 Legs ==> {FirstLegs, IntermediateLegs, FinalLegs};
-Legs --- Delivers;
-Facilities --- Delivers [src];
-Facilities --- Delivers [dest];
 AcceptedRequests --- Has;
 Legs ==> Has;
 
 /* === Relationship/Aggregation Tables === */
-[[Pickup]]();
+[[UnsuccessfulPickups]]();
 <PaidBy>();
-<ProcessRequest>(); /* Employee processes a DR. NOTE: Different from handling! */
+<Processes>(); /* Employee processes a DR. NOTE: Different from handling! */
 <HandlesRequest>(); /* Employee handles a DR */
-<HandlesLeg>(); /*Emmployee handles a Leg in the DR */
+<Monitors>(); /*Employee monitors a Leg in the DR */
 <Makes>(); /* Customer makes a DR */
 <<Consists>>(); /* DR consists of packages */
-<<Records>>(); /* Each leg records delivery pickups */
+<<Records>>(); /* Record unsuccessful pickups */
+<To>(srcAddress, destAddress); /* Delivery between src and location */
 
 /* === Mapping Relationships === */
 /* Each DR is made by exactly 1 Customer
@@ -76,22 +74,36 @@ DeliveryRequests === HandlesRequest;
 /* DR must be processed by at least 1 Employee 
 Each Employee can handle 0 or more DR
 */
-Employees --- ProcessRequest;
-DeliveryRequests === ProcessRequest; 
+Employees --- Processes;
+DeliveryRequests === Processes; 
 
 /* AcceptedRequests is paid by one PaymentRecords
 PaymentRecords is tied to one AcceptedRequests */
 AcceptedRequests ==> PaidBy;
 PaymentRecords ==> PaidBy;
 
-/* Employee can handle 0 or more Legs, but 
-a Leg must only be handled by 1 Employee */
-Employees --- HandlesLeg;
-Legs ==> HandlesLeg;
+/* Employee can monitor 0 or more Legs, but 
+a Leg must only be monitored by 1 Employee */
+Employees --- Monitors;
+Legs ==> Monitors;
 
+/* A leg is delivered to facilities that act as a src and dest.
+A leg has to deliver from and only to one location.
+A leg is also delivered by only one Employee. */
+Legs --- Delivers;
+Employees ==> Delivers;
+Delivers ==> To;
 
-Legs === Records;
-Pickup --- Records;
+/* Packages delivered to a Facility or
+an address */
+Facilities --- To [src];
+Facilities --- To [dest];
+
+/* Assume we do not record unsuccessful pickups. Then
+an AcceptedRequest can have 0 or more unsuccesful pickups, but
+an unsuccessful pickup has only one AcceptedRequest*/
+AcceptedRequests ==> Records;
+UnsuccessfulPickups  --- Records;
 
 DeliveryRequests --> {AcceptableRequests, UnacceptableRequests};
 AcceptableRequests --> {AcceptedRequests, WithdrawnRequests};
