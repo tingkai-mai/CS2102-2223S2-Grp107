@@ -1,8 +1,8 @@
 /* === Package, Employee, Customer, Facility Tables === */
-[Employee](employeeID*, name, gender, dateOfBirth, title, salary);
-[Customer](customerID*, name, gender, phoneNumber);
-[Facility](facilityID*, address, postalCode);
-[[Package]](packageID*, weight, 
+[Employees](employeeID*, name, gender, dateOfBirth, title, salary);
+[Customers](customerID*, name, gender, phoneNumber);
+[Facilities](facilityID*, address, postalCode);
+[[Packages]](packageID*, weight, 
     dimensions(height, width, depth),
     contentDescription,
     estimatedValue); 
@@ -11,37 +11,37 @@
 [PaymentRecords](paymentRecordID*);
 [SuccessfulPaymentRecords](creditCardNumber, paymentTimestamp); /* ISA PaymentRecord*/
 [UnsuccessfulPaymentRecords](); /* ISA PaymentRecord*/
-[DeliveryRequest](requestID*, 
+[DeliveryRequests](requestID*, 
     pickupAddress, 
     pickupPostalCode, 
     recipientName, 
     recipientAddress, 
     recipientPostalCode);
-[AcceptableRequest](deliveryPrice,
+[AcceptableRequests](deliveryPrice,
     tentativePickupDate,
     estimatedDaysToDelivery); /*ISA delivery req*/
-[UnacceptableRequest](); /*ISA delivery req*/
-[AcceptedRequest](creditCard, paymentTimestamp); /*ISA acceptable req*/
-[WithdrawnRequest](); /*ISA acceptable req*/
-[NormalDeliveryRequest](); /*ISA accepted req*/
-[ReturnDeliveryRequest](); /*ISA accepted req*/
+[UnacceptableRequests](); /*ISA delivery req*/
+[AcceptedRequests](creditCard, paymentTimestamp); /*ISA acceptable req*/
+[WithdrawnRequests](); /*ISA acceptable req*/
+[NormalDeliveryRequests](); /*ISA accepted req*/
+[ReturnDeliveryRequests](); /*ISA accepted req*/
 
 /* === Delivery Process Tables === */
-[[Leg]]();
-[[FirstLeg]](weight, dimensions);
-[[IntermediateLeg]]();
-[[FinalLeg]](destAddress);
+[[Legs]]();
+[[FirstLegs]](weight, dimensions);
+[[IntermediateLegs]]();
+[[FinalLegs]](destAddress);
 <Delivers>(srcAddress, destAddress);
 <Precedes>(); /*a leg precedes another leg*/
 <<Has>>(); /* Accepted req has leg*/
-Leg --- Precedes [prev];
-Leg --- Precedes [next];
-Leg ==> {FirstLeg, IntermediateLeg, FinalLeg};
-Leg --- Delivers;
-Facility --- Delivers [src];
-Facility --- Delivers [dest];
-AcceptedRequest --- Has;
-Leg ==> Has;
+Legs --- Precedes [prev];
+Legs --- Precedes [next];
+Legs ==> {FirstLegs, IntermediateLegs, FinalLegs};
+Legs --- Delivers;
+Facilities --- Delivers [src];
+Facilities --- Delivers [dest];
+AcceptedRequests --- Has;
+Legs ==> Has;
 
 /* === Relationship Tables === */
 [[Pickup]]();
@@ -55,28 +55,28 @@ Leg ==> Has;
 /* Each DR is made by exactly 1 Customer
 *  Customer makes 1 or more DR
 */
-DeliveryRequest ==> Makes;
-Customer === Makes;
+DeliveryRequests ==> Makes;
+Customers === Makes;
 
 /* DR consists of one or more Packages
 Each Package is consisted by only one DR
 */
-DeliveryRequest === Consists;
-Package ==> Consists;
+DeliveryRequests === Consists;
+Packages ==> Consists;
 
 /* DR must be handled (processed) by at least 1 Employee 
 Each Employee can handle 0 or more DR
 */
-Employee --- HandlesReq;
-DeliveryRequest === HandlesReq; 
+Employees --- HandlesReq;
+DeliveryRequests === HandlesReq; 
 
-Employee --- HandlesLeg;
-Leg ==> HandlesLeg;
-Leg === Records;
+Employees --- HandlesLeg;
+Legs ==> HandlesLeg;
+Legs === Records;
 Pickup --- Records;
 
 
-DeliveryRequest --> {AcceptableRequest, UnacceptableRequest};
-AcceptableRequest --> {AcceptedRequest, WithdrawnRequest};
-AcceptedRequest --> {NormalDeliveryRequest, ReturnDeliveryRequest};
+DeliveryRequests --> {AcceptableRequests, UnacceptableRequests};
+AcceptableRequests --> {AcceptedRequests, WithdrawnRequests};
+AcceptedRequests --> {NormalDeliveryRequests, ReturnDeliveryRequests};
 
