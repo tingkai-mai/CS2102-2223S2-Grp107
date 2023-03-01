@@ -8,7 +8,7 @@
     estimatedValue); 
 
 /* === Delivery Request Tables === */
-[PaymentRecords](paymentRecordID*);
+[PaymentRecords](paymentRecordID*, paymentCost);
 [SuccessfulPaymentRecords](creditCardNumber, paymentTimestamp); /* ISA PaymentRecord*/
 [UnsuccessfulPaymentRecords](); /* ISA PaymentRecord*/
 [DeliveryRequests](requestID*, 
@@ -21,10 +21,11 @@
     tentativePickupDate,
     estimatedDaysToDelivery); /*ISA delivery req*/
 [UnacceptableRequests](); /*ISA delivery req*/
-[AcceptedRequests](creditCard, paymentTimestamp); /*ISA acceptable req*/
+[AcceptedRequests](paymentRecord); /*ISA acceptable req, after payment is made*/
 [WithdrawnRequests](); /*ISA acceptable req*/
 [NormalDeliveryRequests](); /*ISA accepted req*/
 [ReturnDeliveryRequests](); /*ISA accepted req*/
+<PaidBy>();
 
 /* === Delivery Process Tables === */
 [[Legs]]();
@@ -70,6 +71,12 @@ Each Employee can handle 0 or more DR
 Employees --- HandlesReq;
 DeliveryRequests === HandlesReq; 
 
+/* AcceptedRequests is paid by one PaymentRecords
+PaymentRecords is tied to one AcceptedRequests */
+AcceptedRequests ==> PaidBy;
+PaymentRecords ==> PaidBy;
+
+
 Employees --- HandlesLeg;
 Legs ==> HandlesLeg;
 Legs === Records;
@@ -79,4 +86,5 @@ Pickup --- Records;
 DeliveryRequests --> {AcceptableRequests, UnacceptableRequests};
 AcceptableRequests --> {AcceptedRequests, WithdrawnRequests};
 AcceptedRequests --> {NormalDeliveryRequests, ReturnDeliveryRequests};
+PaymentRecords --> {SuccessfulPaymentRecords, UnsuccessfulPaymentRecords};
 
