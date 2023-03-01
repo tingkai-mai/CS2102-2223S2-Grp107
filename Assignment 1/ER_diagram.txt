@@ -25,11 +25,11 @@
 [WithdrawnRequests](); /*ISA acceptable req*/
 [NormalDeliveryRequests](); /*ISA accepted req*/
 [ReturnDeliveryRequests](); /*ISA accepted req*/
-<PaidBy>();
+
 
 /* === Delivery Process Tables === */
 [[Legs]]();
-[[FirstLegs]](weight, dimensions);
+[[FirstLegs]](weight, dimensions(height, width, depth));
 [[IntermediateLegs]]();
 [[FinalLegs]](destAddress);
 <Delivers>(srcAddress, destAddress);
@@ -44,9 +44,11 @@ Facilities --- Delivers [dest];
 AcceptedRequests --- Has;
 Legs ==> Has;
 
-/* === Relationship Tables === */
+/* === Relationship/Aggregation Tables === */
 [[Pickup]]();
-<HandlesReq>(); /* Employee handles a DR */
+<PaidBy>();
+<ProcessRequest>(); /* Employee processes a DR. NOTE: Different from handling! */
+<HandlesRequest>(); /* Employee handles a DR */
 <HandlesLeg>(); /*Emmployee handles a Leg in the DR */
 <Makes>(); /* Customer makes a DR */
 <<Consists>>(); /* DR consists of packages */
@@ -65,11 +67,17 @@ Each Package is consisted by only one DR
 DeliveryRequests === Consists;
 Packages ==> Consists;
 
-/* DR must be handled (processed) by at least 1 Employee 
+/* DR must be handled by at least 1 Employee 
 Each Employee can handle 0 or more DR
 */
-Employees --- HandlesReq;
-DeliveryRequests === HandlesReq; 
+Employees --- HandlesRequest;
+DeliveryRequests === HandlesRequest; 
+
+/* DR must be processed by at least 1 Employee 
+Each Employee can handle 0 or more DR
+*/
+Employees --- ProcessRequest;
+DeliveryRequests === ProcessRequest; 
 
 /* AcceptedRequests is paid by one PaymentRecords
 PaymentRecords is tied to one AcceptedRequests */
