@@ -23,8 +23,6 @@
 [UnacceptableRequests](); /*ISA delivery req*/
 [AcceptedRequests](requestStatus); /*ISA acceptable req, after payment is made*/
 [WithdrawnRequests](); /*ISA acceptable req*/
-[NormalDeliveryRequests](); /*ISA accepted req*/
-[ReturnDeliveryRequests](); /*ISA accepted req*/
 
 
 /* === Delivery Process Tables === */
@@ -113,6 +111,5 @@ Employees ==> PicksUp;
 
 DeliveryRequests --> {AcceptableRequests, UnacceptableRequests};
 AcceptableRequests --> {AcceptedRequests, WithdrawnRequests};
-AcceptedRequests --> {NormalDeliveryRequests, ReturnDeliveryRequests};
 PaymentRecords --> {SuccessfulPaymentRecords, UnsuccessfulPaymentRecords};
 
