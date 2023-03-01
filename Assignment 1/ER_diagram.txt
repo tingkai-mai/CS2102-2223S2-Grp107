@@ -21,7 +21,7 @@
     tentativePickupDate,
     estimatedDaysToDelivery); /*ISA delivery req*/
 [UnacceptableRequests](); /*ISA delivery req*/
-[AcceptedRequests](paymentRecord); /*ISA acceptable req, after payment is made*/
+[AcceptedRequests](requestStatus); /*ISA acceptable req, after payment is made*/
 [WithdrawnRequests](); /*ISA acceptable req*/
 [NormalDeliveryRequests](); /*ISA accepted req*/
 [ReturnDeliveryRequests](); /*ISA accepted req*/
@@ -31,7 +31,7 @@
 [[Legs]]();
 [[FirstLegs]](weight, dimensions(height, width, depth));
 [[IntermediateLegs]]();
-[[FinalLegs]](destAddress);
+[[FinalLegs]]();
 <Delivers>(srcAddress, destAddress);
 <Precedes>(); /*a leg precedes another leg*/
 <<Has>>(); /* Accepted req has leg*/
@@ -84,12 +84,14 @@ PaymentRecords is tied to one AcceptedRequests */
 AcceptedRequests ==> PaidBy;
 PaymentRecords ==> PaidBy;
 
-
+/* Employee can handle 0 or more Legs, but 
+a Leg must only be handled by 1 Employee */
 Employees --- HandlesLeg;
 Legs ==> HandlesLeg;
+
+
 Legs === Records;
 Pickup --- Records;
-
 
 DeliveryRequests --> {AcceptableRequests, UnacceptableRequests};
 AcceptableRequests --> {AcceptedRequests, WithdrawnRequests};
