@@ -28,9 +28,9 @@
 
 
 /* === Delivery Process Tables === */
-[[Legs]]();
+[[Legs]](startingTimestamp, endingTimestamp);
 [[FirstLegs]](weight, dimensions(height, width, depth));
-[[IntermediateLegs]]();
+[[IntermediateLegs]](reasonOfFailure);
 [[FinalLegs]]();
 [<Delivers>]();
 <Precedes>(); /*a leg precedes another leg*/
