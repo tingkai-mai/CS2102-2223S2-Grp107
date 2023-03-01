@@ -109,6 +109,7 @@ only attempt each unsuccesful pickup */
 UnsuccessfulPickups ==> PicksUp;
 Employees ==> PicksUp;
 
+/* ===== ISA Relationships ===== */
 DeliveryRequests --> {AcceptableRequests, UnacceptableRequests};
 AcceptableRequests --> {AcceptedRequests, WithdrawnRequests};
 PaymentRecords --> {SuccessfulPaymentRecords, UnsuccessfulPaymentRecords};
