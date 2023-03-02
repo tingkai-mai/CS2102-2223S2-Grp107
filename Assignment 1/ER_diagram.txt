@@ -88,7 +88,7 @@ AcceptedRequests ==> Monitors;
 /* AcceptableRequests consists of 2 or more legs
 Legs matched to only one AcceptableRequests
 */
-AcceptableRequests === Consists;
+AcceptedRequests === Consists;
 Legs ==> Consists;
 
 /* Employee 0 or more legs?
