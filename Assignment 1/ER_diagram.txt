@@ -25,7 +25,7 @@
 
 /* === Delivery Process Tables === */
 [[Legs]](startingTimestamp, endingTimestamp);
-[[FirstLegs]](weight, dimensions(height, width, depth));
+[[FirstLegs]]();
 [[IntermediateLegs]](reasonOfFailure);
 [[FinalLegs]]();
 <Handles>(); /* Employee handles a leg */
@@ -42,6 +42,8 @@
 <<Records>>(); /* Record unsuccessful pickups */
 <To>(srcAddress, destAddress); /* Delivery between src and location */
 <<Consists>>();
+<MeasuresPackage>(weight, dimensions(height, width, depth));
+
 
 /* === Mapping Relationships === */
 /* Each DR is made by exactly 1 Customer
@@ -102,6 +104,10 @@ Legs ==> To;
 Facilities --- To [src];
 Facilities --- To [dest];
 
+/* FirstLegs measures one or more packages
+Package measured by up to one FirstLeg*/
+FirstLegs === MeasuresPackage;
+Packages --> MeasuresPackage;
 
 /* ===== ISA Relationships ===== */
 DeliveryRequests --> {AcceptableRequests};
