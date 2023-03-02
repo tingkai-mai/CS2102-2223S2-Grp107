@@ -66,8 +66,8 @@ DeliveryRequests === Processes;
 /* A leg is delivered to facilities that act as a src and dest.
 A leg has to deliver from and only to one location.
 A leg is also delivered by only one Employee. */
-Legs --- Delivers;
-Employees ==> Delivers;
+Legs ==> Delivers;
+Employees --> Delivers;
 Delivers ==> To;
 
 /* Packages delivered to a Facility or
