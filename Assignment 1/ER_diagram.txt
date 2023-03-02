@@ -17,7 +17,6 @@
 [AcceptableRequests](deliveryPrice,
     tentativePickupDate,
     estimatedDaysToDelivery); /*ISA delivery req*/
-[UnacceptableRequests](); /*ISA delivery req*/
 [AcceptedRequests](requestStatus, 
     paymentCost,
     creditCardNumber, 
@@ -49,7 +48,7 @@
 *  Customer makes 1 or more DR
 */
 DeliveryRequests ==> Makes;
-Customers === Makes;
+Customers --- Makes;
 
 /* DR consists of one or more Packages
 Each Package is consisted by only one DR
@@ -105,7 +104,7 @@ Facilities --- To [dest];
 
 
 /* ===== ISA Relationships ===== */
-DeliveryRequests --> {AcceptableRequests, UnacceptableRequests};
+DeliveryRequests --> {AcceptableRequests};
 AcceptableRequests --> {AcceptedRequests, WithdrawnRequests};
 Legs ==> {FirstLegs, IntermediateLegs, FinalLegs};
 
