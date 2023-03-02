@@ -29,7 +29,7 @@
 [[FirstLegs]](weight, dimensions(height, width, depth));
 [[IntermediateLegs]](reasonOfFailure);
 [[FinalLegs]]();
-[<Delivers>]();
+<Handles>(); /* Employee handles a leg */
 <Precedes>(); /*a leg precedes another leg*/
 
 
@@ -63,17 +63,6 @@ Each Employee can handle 0 or more DR
 Employees --- Processes;
 DeliveryRequests === Processes; 
 
-/* A leg is delivered to facilities that act as a src and dest.
-A leg has to deliver from and only to one location.
-A leg is also delivered by only one Employee. */
-Legs ==> Delivers;
-Employees --> Delivers;
-Delivers ==> To;
-
-/* Packages delivered to a Facility or
-an address */
-Facilities --- To [src];
-Facilities --- To [dest];
 
 /* Assume we do not record unsuccessful pickups. Then
 an AcceptedRequest can have 0 or more unsuccesful pickups, but
@@ -101,6 +90,18 @@ Legs matched to only one AcceptableRequests
 */
 AcceptableRequests === Consists;
 Legs ==> Consists;
+
+/* Employee 0 or more legs?
+Leg handled by only one Employee */
+Employees --> Handles;
+Legs ==> Handles;
+
+/* Leg delivers to one Facility
+One facility can have many Legs delivered to
+*/
+Legs ==> To;
+Facilities --- To [src];
+Facilities --- To [dest];
 
 
 /* ===== ISA Relationships ===== */
