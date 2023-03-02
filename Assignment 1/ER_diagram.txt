@@ -8,9 +8,6 @@
     estimatedValue); 
 
 /* === Delivery Request Tables === */
-[PaymentRecords](paymentRecordID*, paymentCost);
-[SuccessfulPaymentRecords](creditCardNumber, paymentTimestamp); /* ISA PaymentRecord*/
-[UnsuccessfulPaymentRecords](); /* ISA PaymentRecord*/
 [DeliveryRequests](requestID*, 
     pickupAddress, 
     pickupPostalCode, 
@@ -23,11 +20,9 @@
 [UnacceptableRequests](); /*ISA delivery req*/
 [AcceptedRequests](requestStatus, 
     paymentCost,
-    paymentTimestamp,
-    creditCardNumber); /*ISA acceptable req, after payment is made*/
+    creditCardNumber, 
+    paymentTimestamp); /*ISA acceptable req, after payment is made*/
 [WithdrawnRequests](); /*ISA acceptable req*/
-[DeliveryProcesses](); 
-
 
 /* === Delivery Process Tables === */
 [[Legs]](startingTimestamp, endingTimestamp);
@@ -36,20 +31,17 @@
 [[FinalLegs]]();
 [<Delivers>]();
 <Precedes>(); /*a leg precedes another leg*/
-<Has>(); /* Accepted req has leg*/
 
 
 /* === Relationship/Aggregation Tables === */
 [[UnsuccessfulPickups]](timestamp, reason);
 <PicksUp>();
-<PaidBy>();
 <Processes>(); /* Employee processes a DR. NOTE: Different from handling! */
 <Monitors>(); /*Employee monitors a Delivery Process */
 <Makes>(); /* Customer makes a DR */
 <<Carries>>(); /* DR carries packages */
 <<Records>>(); /* Record unsuccessful pickups */
 <To>(srcAddress, destAddress); /* Delivery between src and location */
-<<Consists>>();
 
 /* === Mapping Relationships === */
 /* Each DR is made by exactly 1 Customer
@@ -69,16 +61,6 @@ Each Employee can handle 0 or more DR
 */
 Employees --- Processes;
 DeliveryRequests === Processes; 
-
-/* AcceptedRequests is paid by one PaymentRecords
-PaymentRecords is tied to one AcceptedRequests */
-AcceptedRequests ==> PaidBy;
-PaymentRecords ==> PaidBy;
-
-/* Employee can monitor 0 or more Legs, but 
-a Leg must only be monitored by 1 Employee */
-Employees --- Monitors;
-Legs ==> Monitors;
 
 /* A leg is delivered to facilities that act as a src and dest.
 A leg has to deliver from and only to one location.
@@ -107,26 +89,15 @@ Employees --- PicksUp;
 Legs --- Precedes [prev];
 Legs --- Precedes [next];
 
-/* AcceptedRequests has exactly one delivery process
-And DeliveryProcess has exactly one AcceptedRequests
+/* Employee monitors 0 or more AcceptedRequests
+AcceptedRequests monitored by only one Employee
 */
-AcceptedRequests --- Has;
-DeliveryProcesses ==> Has;
-
-/* DeliveryProcess consists of two or more legs
-A leg is tied to exactly one delivery process*/
-Legs ==> Consists;
-DeliveryProcesses === Consists;
-
-/* Employee monitors zero or one Delivery Process
-DeliveryProcess monitored by exactly one Employee */
-Employees --- Monitors;
-DeliveryProcesses ==> Monitors;
+Employees --- Monitors; 
+AcceptedRequests ==> Monitors;
 
 
 /* ===== ISA Relationships ===== */
 DeliveryRequests --> {AcceptableRequests, UnacceptableRequests};
 AcceptableRequests --> {AcceptedRequests, WithdrawnRequests};
-PaymentRecords --> {SuccessfulPaymentRecords, UnsuccessfulPaymentRecords};
 Legs ==> {FirstLegs, IntermediateLegs, FinalLegs};
 
