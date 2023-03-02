@@ -21,8 +21,12 @@
     tentativePickupDate,
     estimatedDaysToDelivery); /*ISA delivery req*/
 [UnacceptableRequests](); /*ISA delivery req*/
-[AcceptedRequests](requestStatus); /*ISA acceptable req, after payment is made*/
+[AcceptedRequests](requestStatus, 
+    paymentCost,
+    paymentTimestamp,
+    creditCardNumber); /*ISA acceptable req, after payment is made*/
 [WithdrawnRequests](); /*ISA acceptable req*/
+[DeliveryProcesses](); 
 
 
 /* === Delivery Process Tables === */
@@ -32,24 +36,20 @@
 [[FinalLegs]]();
 [<Delivers>]();
 <Precedes>(); /*a leg precedes another leg*/
-<<Has>>(); /* Accepted req has leg*/
-Legs --- Precedes [prev];
-Legs --- Precedes [next];
-Legs ==> {FirstLegs, IntermediateLegs, FinalLegs};
-AcceptedRequests --- Has;
-Legs ==> Has;
+<Has>(); /* Accepted req has leg*/
+
 
 /* === Relationship/Aggregation Tables === */
 [[UnsuccessfulPickups]](timestamp, reason);
 <PicksUp>();
 <PaidBy>();
 <Processes>(); /* Employee processes a DR. NOTE: Different from handling! */
-<HandlesRequest>(); /* Employee handles a DR */
-<Monitors>(); /*Employee monitors a Leg in the DR */
+<Monitors>(); /*Employee monitors a Delivery Process */
 <Makes>(); /* Customer makes a DR */
-<<Consists>>(); /* DR consists of packages */
+<<Carries>>(); /* DR carries packages */
 <<Records>>(); /* Record unsuccessful pickups */
 <To>(srcAddress, destAddress); /* Delivery between src and location */
+<<Consists>>();
 
 /* === Mapping Relationships === */
 /* Each DR is made by exactly 1 Customer
@@ -61,14 +61,8 @@ Customers === Makes;
 /* DR consists of one or more Packages
 Each Package is consisted by only one DR
 */
-DeliveryRequests === Consists;
-Packages ==> Consists;
-
-/* DR must be handled by at least 1 Employee 
-Each Employee can handle 0 or more DR
-*/
-Employees --- HandlesRequest;
-DeliveryRequests === HandlesRequest; 
+DeliveryRequests === Carries;
+Packages ==> Carries;
 
 /* DR must be processed by at least 1 Employee 
 Each Employee can handle 0 or more DR
@@ -107,10 +101,32 @@ UnsuccessfulPickups  --- Records;
 /* An unsuccesful pickup is always done so by an Employee, and an Employee can
 only attempt each unsuccesful pickup */
 UnsuccessfulPickups ==> PicksUp;
-Employees ==> PicksUp;
+Employees --- PicksUp;
+
+/* Maps src and dest of legs */
+Legs --- Precedes [prev];
+Legs --- Precedes [next];
+
+/* AcceptedRequests has exactly one delivery process
+And DeliveryProcess has exactly one AcceptedRequests
+*/
+AcceptedRequests --- Has;
+DeliveryProcesses ==> Has;
+
+/* DeliveryProcess consists of two or more legs
+A leg is tied to exactly one delivery process*/
+Legs ==> Consists;
+DeliveryProcesses === Consists;
+
+/* Employee monitors zero or one Delivery Process
+DeliveryProcess monitored by exactly one Employee */
+Employees --- Monitors;
+DeliveryProcesses ==> Monitors;
+
 
 /* ===== ISA Relationships ===== */
 DeliveryRequests --> {AcceptableRequests, UnacceptableRequests};
 AcceptableRequests --> {AcceptedRequests, WithdrawnRequests};
 PaymentRecords --> {SuccessfulPaymentRecords, UnsuccessfulPaymentRecords};
+Legs ==> {FirstLegs, IntermediateLegs, FinalLegs};
 
