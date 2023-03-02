@@ -42,6 +42,7 @@
 <<Carries>>(); /* DR carries packages */
 <<Records>>(); /* Record unsuccessful pickups */
 <To>(srcAddress, destAddress); /* Delivery between src and location */
+<<Consists>>();
 
 /* === Mapping Relationships === */
 /* Each DR is made by exactly 1 Customer
@@ -94,6 +95,12 @@ AcceptedRequests monitored by only one Employee
 */
 Employees --- Monitors; 
 AcceptedRequests ==> Monitors;
+
+/* AcceptableRequests consists of 2 or more legs
+Legs matched to only one AcceptableRequests
+*/
+AcceptableRequests === Consists;
+Legs ==> Consists;
 
 
 /* ===== ISA Relationships ===== */
