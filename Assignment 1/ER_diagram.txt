@@ -109,7 +109,6 @@ Packages --> MeasuresPackage;
 /* FirstLegs, IntermediateLegs, UnsuccessfulLegs, FinalLegs */
 FirstLegs ==> CustToFac;
 IntermediateLegs ==> FacToFac;
-UnsuccessfulLegs ==> FacToFac;
 FinalLegs ==> FacToCust;
 
 /* Leg delivers to one Facility
@@ -124,5 +123,6 @@ Facilities --- FacToFac [dest];
 /* ===== ISA Relationships ===== */
 DeliveryRequests --> {AcceptableRequests};
 AcceptableRequests --> {AcceptedRequests, WithdrawnRequests};
-Legs ==> {FirstLegs, IntermediateLegs, UnsuccessfulLegs, FinalLegs};
+Legs ==> {FirstLegs, IntermediateLegs, FinalLegs};
+IntermediateLegs --> {UnsuccessfulLegs};
 
