@@ -46,9 +46,9 @@
 <<Consists>>();
 <MeasuresPackage>(weight, dimensions(height, width, depth));
 <<Involves>>(); /* AcceptedRequests involves a Delivery Process */
-<Between>();
-<From>();
-<To>();
+<DeliversBetween>();
+<DeliversFrom>();
+<DeliversTo>();
 
 /* === Mapping Relationships === */
 /* Each DR is made by exactly 1 Customer
@@ -110,17 +110,17 @@ Packages --> MeasuresPackage;
 
 
 /* FirstLegs, IntermediateLegs, UnsuccessfulLegs, FinalLegs */
-CustToFac ==> To;
-FacToFac ==> Between;
-FacToCust ==> From;
+CustToFac ==> DeliversTo;
+FacToFac ==> DeliversBetween;
+FacToCust ==> DeliversFrom;
 
 /* Leg delivers to one Facility
 One facility can have many Legs delivered to
 */
-Facilities --- From;
-Facilities --- To;
-Facilities --- Between [src];
-Facilities --- Between [dest];
+Facilities --- DeliversFrom;
+Facilities --- DeliversTo;
+Facilities --- DeliversBetween [src];
+Facilities --- DeliversBetween [dest];
 
 /* AcceptedRequests has at least one Delivery Process
 Delivery Process has only one AcceptedReuests */
