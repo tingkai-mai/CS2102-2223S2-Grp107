@@ -122,7 +122,7 @@ Facilities --- FacToFac [dest];
 
 /* ===== ISA Relationships ===== */
 DeliveryRequests --> {AcceptableRequests};
-AcceptableRequests --> {AcceptedRequests, WithdrawnRequests};
+AcceptableRequests ==> {AcceptedRequests, WithdrawnRequests};
 Legs ==> {FirstLegs, IntermediateLegs, FinalLegs};
 IntermediateLegs --> {UnsuccessfulLegs};
 
