@@ -62,7 +62,7 @@ Packages ==> Carries;
 Each Employee can handle 0 or more DR
 */
 Employees --- Processes;
-DeliveryRequests === Processes; 
+DeliveryRequests ==> Processes; 
 
 
 /* Assume we do not record unsuccessful pickups. Then
