@@ -17,8 +17,7 @@
 [AcceptableRequests](deliveryPrice,
     tentativePickupDate,
     estimatedDaysToDelivery); /*ISA delivery req*/
-[AcceptedRequests](requestStatus, 
-    paymentCost,
+[AcceptedRequests](paymentCost,
     creditCardNumber, 
     paymentTimestamp); /*ISA acceptable req, after payment is made*/
 
@@ -28,7 +27,7 @@
 [[FacToFacLegs]]();
 [[UnsuccessfulLegs]](reasonOfFailure); 
 [[FacToCustLegs]]();
-[[DeliveryProcesses]]();
+[[DeliveryProcesses]](requestStatus);
 [[ReturnDeliveryProcesses]]();
 <Handles>(); /* Employee handles a leg */
 <Precedes>(); /*a leg precedes another leg*/
