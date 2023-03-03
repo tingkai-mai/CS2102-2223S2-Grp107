@@ -25,10 +25,12 @@
 
 /* === Delivery Process Tables === */
 [[Legs]](startingTimestamp, endingTimestamp);
-[[FirstLegs]]();
-[[IntermediateLegs]]();
+[[CustToFac]]();
+[[FacToFac]]();
 [[UnsuccessfulLegs]](reasonOfFailure); 
-[[FinalLegs]]();
+[[FacToCust]]();
+[[DeliveryProcesses]]();
+[[ReturnDeliveryProcesses]]();
 <Handles>(); /* Employee handles a leg */
 <Precedes>(); /*a leg precedes another leg*/
 
@@ -41,13 +43,12 @@
 <Makes>(); /* Customer makes a DR */
 <<Carries>>(); /* DR carries packages */
 <<Records>>(); /* Record unsuccessful pickups */
-<CustToFac>();
-<FacToFac>();
-<FacToCust>();
 <<Consists>>();
 <MeasuresPackage>(weight, dimensions(height, width, depth));
-
-
+<<Involves>>(); /* AcceptedRequests involves a Delivery Process */
+<Between>();
+<From>();
+<To>();
 
 /* === Mapping Relationships === */
 /* Each DR is made by exactly 1 Customer
@@ -93,7 +94,7 @@ AcceptedRequests ==> Monitors;
 /* AcceptableRequests consists of 2 or more legs
 Legs matched to only one AcceptableRequests
 */
-AcceptedRequests === Consists;
+DeliveryProcesses === Consists;
 Legs ==> Consists;
 
 /* Employee 0 or more legs?
@@ -103,26 +104,33 @@ Legs ==> Handles;
 
 /* FirstLegs measures one or more packages
 Package measured by up to one FirstLeg*/
-FirstLegs === MeasuresPackage;
+CustToFac === MeasuresPackage;
 Packages --> MeasuresPackage;
 
+
+
 /* FirstLegs, IntermediateLegs, UnsuccessfulLegs, FinalLegs */
-FirstLegs ==> CustToFac;
-IntermediateLegs ==> FacToFac;
-FinalLegs ==> FacToCust;
+CustToFac ==> To;
+FacToFac ==> Between;
+FacToCust ==> From;
 
 /* Leg delivers to one Facility
 One facility can have many Legs delivered to
 */
-Facilities --- CustToFac;
-Facilities --- FacToCust;
-Facilities --- FacToFac [src];
-Facilities --- FacToFac [dest];
+Facilities --- From;
+Facilities --- To;
+Facilities --- Between [src];
+Facilities --- Between [dest];
 
+/* AcceptedRequests has at least one Delivery Process
+Delivery Process has only one AcceptedReuests */
+AcceptedRequests === Involves;
+DeliveryProcesses ==> Involves;
 
 /* ===== ISA Relationships ===== */
 DeliveryRequests --> {AcceptableRequests};
 AcceptableRequests ==> {AcceptedRequests, WithdrawnRequests};
-Legs ==> {FirstLegs, IntermediateLegs, FinalLegs};
-IntermediateLegs --> {UnsuccessfulLegs};
+Legs ==> {CustToFac, FacToFac, FacToCust};
+FacToFac --> {UnsuccessfulLegs};
+DeliveryProcesses --> {ReturnDeliveryProcesses};
 
