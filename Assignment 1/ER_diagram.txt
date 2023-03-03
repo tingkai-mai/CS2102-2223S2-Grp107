@@ -97,7 +97,7 @@ Legs ==> Consists;
 
 /* Employee 0 or more legs?
 Leg handled by only one Employee */
-Employees --> Handles;
+Employees --- Handles;
 Legs ==> Handles;
 
 /* FirstLegs measures one or more packages
