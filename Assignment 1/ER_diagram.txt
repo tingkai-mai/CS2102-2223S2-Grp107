@@ -21,7 +21,6 @@
     paymentCost,
     creditCardNumber, 
     paymentTimestamp); /*ISA acceptable req, after payment is made*/
-[WithdrawnRequests](); /*ISA acceptable req*/
 
 /* === Delivery Process Tables === */
 [[Legs]](startingTimestamp, endingTimestamp);
@@ -129,7 +128,7 @@ DeliveryProcesses ==> Involves;
 
 /* ===== ISA Relationships ===== */
 DeliveryRequests --> {AcceptableRequests};
-AcceptableRequests ==> {AcceptedRequests, WithdrawnRequests};
+AcceptableRequests ==> {AcceptedRequests};
 Legs ==> {CustToFacLegs, FacToFacLegs, FacToCustLegs};
 FacToFacLegs --> {UnsuccessfulLegs};
 DeliveryProcesses --> {ReturnDeliveryProcesses};
