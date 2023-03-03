@@ -18,7 +18,8 @@
     tentativePickupDate,
     estimatedDaysToDelivery); /*ISA delivery req*/
 [AcceptedRequests](creditCardNumber, 
-    paymentTimestamp); /*ISA acceptable req, after payment is made*/
+    paymentTimestamp,
+    cancellationTimestamp); /*ISA acceptable req, after payment is made*/
 
 /* === Delivery Process Tables === */
 [[Legs]](startingTimestamp, endingTimestamp);
