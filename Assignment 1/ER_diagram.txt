@@ -17,8 +17,7 @@
 [AcceptableRequests](deliveryPrice,
     tentativePickupDate,
     estimatedDaysToDelivery); /*ISA delivery req*/
-[AcceptedRequests](paymentCost,
-    creditCardNumber, 
+[AcceptedRequests](creditCardNumber, 
     paymentTimestamp); /*ISA acceptable req, after payment is made*/
 
 /* === Delivery Process Tables === */
@@ -87,7 +86,7 @@ Legs --- Precedes [next];
 AcceptedRequests monitored by only one Employee
 */
 Employees --- Monitors; 
-AcceptedRequests ==> Monitors;
+DeliveryProcesses ==> Monitors;
 
 /* AcceptableRequests consists of 2 or more legs
 Legs matched to only one AcceptableRequests
