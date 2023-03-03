@@ -23,10 +23,10 @@
 
 /* === Delivery Process Tables === */
 [[Legs]](startingTimestamp, endingTimestamp);
-[[CustToFacLegs]]();
+[[CustToFacLegs]](srcAddr);
 [[FacToFacLegs]]();
 [[UnsuccessfulLegs]](reasonOfFailure); 
-[[FacToCustLegs]]();
+[[FacToCustLegs]](destAddr);
 [[DeliveryProcesses]](requestStatus);
 [[ReturnDeliveryProcesses]]();
 <Handles>(); /* Employee handles a leg */
