@@ -26,7 +26,8 @@
 /* === Delivery Process Tables === */
 [[Legs]](startingTimestamp, endingTimestamp);
 [[FirstLegs]]();
-[[IntermediateLegs]](reasonOfFailure);
+[[IntermediateLegs]]();
+[[UnsuccessfulLegs]](reasonOfFailure); 
 [[FinalLegs]]();
 <Handles>(); /* Employee handles a leg */
 <Precedes>(); /*a leg precedes another leg*/
@@ -112,5 +113,5 @@ Packages --> MeasuresPackage;
 /* ===== ISA Relationships ===== */
 DeliveryRequests --> {AcceptableRequests};
 AcceptableRequests --> {AcceptedRequests, WithdrawnRequests};
-Legs ==> {FirstLegs, IntermediateLegs, FinalLegs};
+Legs ==> {FirstLegs, IntermediateLegs, UnsuccessfulLegs, FinalLegs};
 
