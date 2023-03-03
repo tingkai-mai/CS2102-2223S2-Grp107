@@ -25,10 +25,10 @@
 
 /* === Delivery Process Tables === */
 [[Legs]](startingTimestamp, endingTimestamp);
-[[CustToFac]]();
-[[FacToFac]]();
+[[CustToFacLegs]]();
+[[FacToFacLegs]]();
 [[UnsuccessfulLegs]](reasonOfFailure); 
-[[FacToCust]]();
+[[FacToCustLegs]]();
 [[DeliveryProcesses]]();
 [[ReturnDeliveryProcesses]]();
 <Handles>(); /* Employee handles a leg */
@@ -104,15 +104,15 @@ Legs ==> Handles;
 
 /* FirstLegs measures one or more packages
 Package measured by up to one FirstLeg*/
-CustToFac === MeasuresPackage;
+CustToFacLegs === MeasuresPackage;
 Packages --> MeasuresPackage;
 
 
 
 /* FirstLegs, IntermediateLegs, UnsuccessfulLegs, FinalLegs */
-CustToFac ==> DeliversTo;
-FacToFac ==> DeliversBetween;
-FacToCust ==> DeliversFrom;
+CustToFacLegs ==> DeliversTo;
+FacToFacLegs ==> DeliversBetween;
+FacToCustLegs ==> DeliversFrom;
 
 /* Leg delivers to one Facility
 One facility can have many Legs delivered to
@@ -130,7 +130,7 @@ DeliveryProcesses ==> Involves;
 /* ===== ISA Relationships ===== */
 DeliveryRequests --> {AcceptableRequests};
 AcceptableRequests ==> {AcceptedRequests, WithdrawnRequests};
-Legs ==> {CustToFac, FacToFac, FacToCust};
-FacToFac --> {UnsuccessfulLegs};
+Legs ==> {CustToFacLegs, FacToFacLegs, FacToCustLegs};
+FacToFacLegs --> {UnsuccessfulLegs};
 DeliveryProcesses --> {ReturnDeliveryProcesses};
 
