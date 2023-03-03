@@ -1,6 +1,6 @@
 CREATE TABLE Employees (
   employeeID INT,
-  ename VARCHAR NOT NULL,
+  name VARCHAR NOT NULL,
   gender VARCHAR,
   dateOfBirth DATE,
   title VARCHAR,
@@ -10,7 +10,7 @@ CREATE TABLE Employees (
 
 CREATE TABLE Customers (
   customerID INT,
-  cname VARCHAR NOT NULL,
+  name VARCHAR NOT NULL,
   gender VARCHAR,
   phoneNumber INT,
   PRIMARY KEY (customerID)
@@ -58,7 +58,7 @@ CREATE TABLE Packages (
   packageID INT,
   height NUMERIC NOT NULL,  
   width NUMERIC NOT NULL,
-  package_depth NUMERIC NOT NULL,
+  depth NUMERIC NOT NULL,
   weight NUMERIC NOT NULL, 
   contentDescription VARCHAR NOT NULL,
   estimatedValue NUMERIC NOT NULL,
@@ -117,7 +117,7 @@ CREATE TABLE MeasuresPackage (
   packageID INT, 
   height NUMERIC NOT NULL,
   width NUMERIC NOT NULL, 
-  package_depth NUMERIC NOT NULL,
+  depth NUMERIC NOT NULL,
   weight NUMERIC NOT NULL,
   PRIMARY KEY (packageRequestID, packageID),
   FOREIGN KEY (legRequestID, deliveryProcessID, legID) REFERENCES CustToFacLegs (requestID, deliveryProcessID, legID),
@@ -157,7 +157,7 @@ CREATE TABLE FacToCustLegs (
   FOREIGN KEY (srcFacilityID) REFERENCES Facilities (facilityID)
 );
 
-CREATE TABLE LegPrecedes (
+CREATE TABLE Precedes (
   prevRequestID INT, 
   prevDeliveryProcessID INT,  
   prevLegID INT,
