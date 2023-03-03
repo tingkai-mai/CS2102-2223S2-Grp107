@@ -41,9 +41,12 @@
 <Makes>(); /* Customer makes a DR */
 <<Carries>>(); /* DR carries packages */
 <<Records>>(); /* Record unsuccessful pickups */
-<To>(srcAddress, destAddress); /* Delivery between src and location */
+<CustToFac>();
+<FacToFac>();
+<FacToCust>();
 <<Consists>>();
 <MeasuresPackage>(weight, dimensions(height, width, depth));
+
 
 
 /* === Mapping Relationships === */
@@ -98,17 +101,25 @@ Leg handled by only one Employee */
 Employees --> Handles;
 Legs ==> Handles;
 
-/* Leg delivers to one Facility
-One facility can have many Legs delivered to
-*/
-Legs ==> To;
-Facilities --- To [src];
-Facilities --- To [dest];
-
 /* FirstLegs measures one or more packages
 Package measured by up to one FirstLeg*/
 FirstLegs === MeasuresPackage;
 Packages --> MeasuresPackage;
+
+/* FirstLegs, IntermediateLegs, UnsuccessfulLegs, FinalLegs */
+FirstLegs ==> CustToFac;
+IntermediateLegs ==> FacToFac;
+UnsuccessfulLegs ==> FacToFac;
+FinalLegs ==> FacToCust;
+
+/* Leg delivers to one Facility
+One facility can have many Legs delivered to
+*/
+Facilities --- CustToFac;
+Facilities --- FacToCust;
+Facilities --- FacToFac [src];
+Facilities --- FacToFac [dest];
+
 
 /* ===== ISA Relationships ===== */
 DeliveryRequests --> {AcceptableRequests};
