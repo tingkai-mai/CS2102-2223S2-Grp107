@@ -275,7 +275,7 @@ DECLARE
 BEGIN
     SELECT COUNT(*) INTO unsuccessful_return_deliveries_count FROM unsuccessful_return_deliveries u WHERE NEW.request_id = u.request_id;
 
-    IF (unsuccessful_deliveries_count >= 3) THEN
+    IF (unsuccessful_return_deliveries_count >= 3) THEN
         -- RAISE EXCEPTION 'Cannot have more than three unsuccessful return deliveries in a delivery request!';
         RETURN NULL;
     END IF;
