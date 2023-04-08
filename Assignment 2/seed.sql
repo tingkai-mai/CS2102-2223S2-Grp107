@@ -110,5 +110,5 @@ INSERT INTO unsuccessful_return_deliveries (request_id, leg_id, reason, attempt_
 (19, 3, 'Haha', '2023-04-16 10:00:00');
 
 -- Q1
--- INSERT INTO delivery_requests (id, customer_id, evaluater_id, status, pickup_addr, pickup_postal, recipient_name, recipient_addr, recipient_postal, submission_time, pickup_date, num_days_needed, price) VALUES
--- (12, 4, 2, 'submitted', '88 Elm St', '10003', 'Jane Smith', '77 Pine St', '10008', '2023-03-15 10:30:00', '2023-03-16', 1, 10.00)
+INSERT INTO delivery_requests (id, customer_id, evaluater_id, status, pickup_addr, pickup_postal, recipient_name, recipient_addr, recipient_postal, submission_time, pickup_date, num_days_needed, price) VALUES
+(21, 4, 2, 'submitted', '88 Elm St', '10003', 'Jane Smith', '77 Pine St', '10008', '2023-03-15 10:30:00', '2023-03-16', 1, 10.00);
