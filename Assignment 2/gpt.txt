@@ -1,0 +1,190 @@
+This is a description of a courier company. 
+
+Shinobi Express (SE) is a courier company that provides express delivery services in a certain country. SE has a number of employees. Each employee has an employee ID, name, gender, date of birth, title, and salary. SE also has a number of facilities (for storing packages). Each facility has a facility ID, an address, and a postal code.
+Any customer who would like to engage SE’s service would need to first register an account. Each customer account has a customer ID, name, gender, and mobile number.
+Once registered, a customer may submit delivery requests to SE at any time. Each delivery request has a pickup address, a pickup postal code, a recipient name, a recipient address, and a recipient postal code. The delivery request may involve one or more packages. For each package, the customer needs to specify its dimensions (in terms of height, width, and depth) and weight, and provide a text description of the package content, as well as the estimated value of the package.
+Once a delivery request is submitted, it is assigned a request ID; each package pertinent to the request is assigned a package ID. The package ID can uniquely identify a package but only within the request. The delivery request is then processed by an SE employee. The SE employee would evaluate whether the delivery request is acceptable; if it is acceptable, then the SE employee would inform the customer about the price of the delivery, the tentative pickup date, and the estimated number of days required for the delivery. If the customer would like to proceed with the delivery, she would need to pay the delivery cost using a credit card; if the payment is successful, SE would record the credit card number and payment timestamp, and formally accept the delivery request. On the other hand, if the customer does not wish to proceed with the delivery, then the delivery request is withdrawn.
+After a delivery request is accepted, it is assigned to an SE employee that monitors the delivery process. The delivery process consists of two or more legs, each of which is handled by a delivery personnel (who is also an SE employee). In the first leg, a delivery personnel picks up the packages pertinent to the delivery request from the customer, and drops them off at an SE facility (which is referred to as the destination facility of the leg). When picking up the packages, the delivery personnel would measure the actual dimensions and weight of each package (which may differ from the dimensions and weight that the customer provided in the delivery request), and records them in SE’s system. In the last leg, the packages are picked up from the SE facility that they are located (which is referred to as the source facility of the leg), and then delivered to the intended recipient indicated in the delivery request. Once the recipient receives the package, the deliver request is marked as completed. Meanwhile, in each leg between the first and last ones, a delivery personnel transfers the packages from a source SE facility to a destination SE facility. SE keeps track of the delivery personnel that handles each leg, and records the starting and ending timestamps of the leg. Note that at any point of the delivery process, the destination facility of one leg always equals the source facility of the immediate subsequent leg.
+A number of issues may arise in a delivery process:
+1) In the beginning of the delivery process, the delivery personnel may fail to pick up the package(s) from the customer on the intended pickup date, for various reasons (e.g., the customer is unreachable). When this happens, SE would arrange another pickup on another date by a (potentially different) delivery personnel. SE records the timestamp and reason of each unsuccessful pickup, as well as the delivery personnel that attempts the unsuccessful pickup. Note that unsuccessful pickups are NOT considered a leg the delivery process. In other words, the first leg of a delivery always starts with a successful pick up, and the timestamp of the first leg equals the timestamp of the successful pick up.
+2) In the first leg, the delivery personnel may find that the dimensions or weight of a package differ significantly from those provided in the delivery request. In that case, the delivery personnel would terminate the pickup, and inform SE about the issue. SE would then mark the current delivery request as cancelled and refund the customer, and then submit, on the customer’s behalf, another delivery request with updated dimensions and weight for each package (while keeping the pickup and recipient information unchanged). The new delivery request will then be processed as a separate delivery request. That is, it will be assigned a new request ID and evaluated by an SE employee; the delivery cost will be re-calculated, and the customer needs to re-decide whether or not she would like to re-decide whether she would like to pay and proceed with the delivery, and so on. If the customer decided to proceed with the delivery, the first leg of the new delivery request is also recorded.
+3) In the last leg, the delivery personnel may fail to deliver the packages to the intended recipient, for various reasons (e.g., the recipient is unreachable). When this happens, the delivery personnel would drop the packages to an SE facility (which could be the same facility where the packages were picked up), and SE would arrange another delivery on another date by a (potentially different) delivery personnel. SE records each unsuccessful delivery as a leg in the delivery process, but also records the timestamp and reason of the unsuccessful delivery. After three unsuccessful deliveries, SE would keep the packages in the SE facility that they are located, and notify the recipient to collect them from the facility. If the recipient collects the packages within two weeks, SE records the collection as the last leg of the delivery process, with its starting and ending timestamps both equal the collection timestamp; SE also marks the delivery request as completed. On the other hand, if the recipient fails to collect the packages within two weeks, the delivery request is marked as unsuccessful, and packages are returned to the customer via a return delivery process (which will be explained shortly).
+4) The customer may cancel the delivery request before the packages reach the intended recipient. SE would record the timestamp of the cancellation, and identify the SE facility that the packages are currently located; then, SE would return the packages to the customer via a return delivery process. The delivery request is marked as cancelled, and the delivery cost is NOT refunded.
+A return delivery process involves one or more legs. It is identical to an ordinary delivery process, except for the following differences:
+1) The first leg starts from the SE facility that the packages are located. For simplicity, we do not consider the possibility that the delivery personnel may fail to pick up the packages from the SE facility.
+2) The last leg ends at the customer’s address. Note that it is possible that the delivery personnel may fail to deliver the packages to the customer, for various reasons (e.g., the recipient is unreachable). When this happens, the delivery personnel would drop the packages to an SE facility, and SE would arrange another delivery on another date by a (potentially different) delivery personnel. SE records each unsuccessful delivery as a leg in the delivery process, but also records the timestamp and reason of the unsuccessful delivery. After three unsuccessful deliveries, SE would keep the packages in the SE facility that they are located, and notify the customer to collect them from the facility.
+
+This is the PSQL schema for this problem statement:
+CREATE TYPE gender_type AS ENUM (
+	'male',
+	'female'
+);
+
+CREATE TYPE delivery_status AS ENUM (
+	'submitted',
+	'evaluated',
+	'withdrawn',
+	'accepted',
+	'completed',
+	'cancelled',
+	'unsuccessful'
+);
+
+CREATE TABLE customers (
+	id SERIAL PRIMARY KEY,
+	name TEXT NOT NULL,
+	gender gender_type NOT NULL,
+	mobile TEXT NOT NULL
+);
+
+CREATE TABLE employees (
+	id SERIAL PRIMARY KEY,
+	name TEXT NOT NULL,
+	gender gender_type NOT NULL,
+	dob DATE NOT NULL,
+	title TEXT NOT NULL,
+	salary NUMERIC NOT NULL,
+	CHECK (salary >= 0)
+);
+
+CREATE TABLE delivery_staff (
+	id INTEGER PRIMARY KEY NOT NULL REFERENCES employees(id) 
+);
+
+CREATE TABLE delivery_requests (
+	id SERIAL PRIMARY KEY,
+	customer_id INTEGER NOT NULL REFERENCES customers(id),
+	evaluater_id INTEGER NOT NULL REFERENCES employees(id),
+	status delivery_status NOT NULL,
+	pickup_addr TEXT NOT NULL,
+	pickup_postal TEXT NOT NULL,
+	recipient_name TEXT NOT NULL,
+	recipient_addr TEXT NOT NULL,
+	recipient_postal TEXT NOT NULL,
+	submission_time TIMESTAMP NOT NULL,
+	pickup_date DATE,
+	num_days_needed INTEGER,
+	price NUMERIC
+);
+
+CREATE TABLE packages (
+	request_id INTEGER REFERENCES delivery_requests(id),
+	package_id INTEGER,
+	reported_height NUMERIC NOT NULL,
+	reported_width NUMERIC NOT NULL,
+	reported_depth NUMERIC NOT NULL,
+	reported_weight NUMERIC NOT NULL,
+	content TEXT NOT NULL,
+	estimated_value NUMERIC NOT NULL,
+	actual_height NUMERIC,
+	actual_width NUMERIC,
+	actual_depth NUMERIC,
+	actual_weight NUMERIC,
+	PRIMARY KEY (request_id, package_id)
+);
+
+CREATE TABLE accepted_requests (
+	id INTEGER PRIMARY KEY REFERENCES delivery_requests(id),
+	card_number TEXT NOT NULL,
+	payment_time TIMESTAMP NOT NULL,
+	monitor_id INTEGER NOT NULL REFERENCES employees(id)
+);
+
+CREATE TABLE cancelled_or_unsuccessful_requests (
+	id INTEGER PRIMARY KEY REFERENCES accepted_requests(id)
+);
+
+CREATE TABLE cancelled_requests (
+	id INTEGER PRIMARY KEY REFERENCES accepted_requests(id),
+	cancel_time TIMESTAMP NOT NULL
+);
+
+CREATE TABLE unsuccessful_pickups (
+	request_id INTEGER REFERENCES accepted_requests(id),
+	pickup_id INTEGER,
+	handler_id INTEGER NOT NULL REFERENCES delivery_staff(id),
+	pickup_time TIMESTAMP NOT NULL,
+	reason TEXT,
+	PRIMARY KEY (request_id, pickup_id)
+);
+
+CREATE TABLE facilities (
+	id SERIAL PRIMARY KEY,
+	address TEXT NOT NULL,
+	postal TEXT NOT NULL
+);
+	
+CREATE TABLE legs (
+	request_id INTEGER REFERENCES accepted_requests(id),
+	leg_id INTEGER,
+	handler_id INTEGER NOT NULL REFERENCES delivery_staff(id),	
+    start_time TIMESTAMP NOT NULL,
+	end_time TIMESTAMP,
+	destination_facility INTEGER REFERENCES facilities(id),
+	PRIMARY KEY (request_id, leg_id)
+);
+
+CREATE TABLE unsuccessful_deliveries (
+    request_id INTEGER,
+    leg_id INTEGER,
+    reason TEXT NOT NULL,
+    attempt_time TIMESTAMP NOT NULL,
+	PRIMARY KEY (request_id, leg_id),
+    FOREIGN KEY (request_id, leg_id) REFERENCES legs(request_id, leg_id)
+);
+
+CREATE TABLE return_legs (
+	request_id INTEGER REFERENCES cancelled_or_unsuccessful_requests(id),
+	leg_id INTEGER,
+	handler_id INTEGER NOT NULL REFERENCES delivery_staff(id),	
+    start_time TIMESTAMP NOT NULL,
+    source_facility INTEGER NOT NULL REFERENCES facilities(id),
+	end_time TIMESTAMP,
+	PRIMARY KEY (request_id, leg_id)
+);
+
+CREATE TABLE unsuccessful_return_deliveries (
+    request_id INTEGER,
+    leg_id INTEGER,
+    reason TEXT NOT NULL,
+    attempt_time TIMESTAMP NOT NULL,
+	PRIMARY KEY (request_id, leg_id), 
+    FOREIGN KEY (request_id, leg_id) REFERENCES return_legs(request_id, leg_id)
+);
+
+Here are some triggers that enforce certain constraints, which MUSt be followed in the given schema:
+
+Delivery_requests related:
+(1) Each delivery request has at least one package.
+Package related:
+(2) For each delivery request, the IDs of the packages should be consecutive integers starting from 1.
+Unsuccessful_pickups related:
+(3) For each delivery request, the IDs of the unsuccessful pickups should be consecutive integers starting
+from 1.
+(4) The timestamp of the first unsuccessful pickup should be after the submission_time of the
+corresponding delivery request. In addition, each unsuccessful pickup’s timestamp should be after the
+previous unsuccessful pickup’s timestamp (if any).
+Legs related:
+(1) For each delivery request, the IDs of the legs should be consecutive integers starting from 1.
+(2) For each delivery request, the start time of the first leg should be after the submission_time of the
+delivery request and the timestamp of the last unsuccessful pickup (if any).
+(3) For each delivery request, a new leg cannot be inserted if its start_time is before the end_time of the
+previous leg, or if the end_time of the previous leg is NULL.
+Unsuccessful_deliveries:
+(4) The timestamp of each unsuccessful_delivery should be after the start_time of the corresponding leg.
+(5) For each delivery request, there can be at most three unsuccessful_deliveries.
+Cancelled_requests related:
+(6) The cancel_time of a cancelled request should be after the submission_time of the corresponding
+delivery request.
+Return_legs related:
+(7) For each delivery request, the first return_leg’s ID should 1, the second return_leg’s ID should be 2,
+and so on.
+(8) For a delivery request, the first return_leg cannot be inserted if (i) there is no existing leg for the delivery
+request or (ii) the last existing leg’s end_time is after the start_time of the return_leg. In addition, the
+return_leg’s start_time should be after the cancel_time of the request (if any).
+(9) For each delivery request, there can be at most three unsuccessful_return_deliveries.
+Unsuccessful_return_deliveries related:
+(10) The timestamp of each unsuccessful_return_delivery should be after the start_time of the
+corresponding return_leg.
+
+I need you to come up with a lot of mock data for the given tables, preferably about 10 rows per table, and ensure that the problem constraints are met. 
