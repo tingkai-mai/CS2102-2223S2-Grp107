@@ -167,8 +167,8 @@ DECLARE
 BEGIN
     SELECT start_time INTO leg_start_time FROM Legs L WHERE L.leg_id = NEW.leg_id AND NEW.request_id = L.request_id;
     
-    IF NEW.attempt_time > leg_start_time THEN
-        RAISE EXCEPTION 'The timestamp of each unsuccessful_delivery must be after the start_time of the corresponding leg.';
+    IF NEW.attempt_time <= leg_start_time THEN
+        RAISE EXCEPTION 'The timestamp of each unsuccessful delivery must be after the start time of the corresponding leg.';
         RETURN NULL;
     ELSE 
         RETURN NEW;
@@ -210,7 +210,7 @@ DECLARE
 BEGIN
     SELECT D.submission_time INTO delivery_req_submission_time FROM delivery_requests D WHERE D.id = NEW.id; 
     IF NEW.cancel_time <= delivery_req_submission_time THEN 
-        RAISE EXCEPTION 'The cancel_time of a cancelled request must be after the submission_time of the corresponding delivery request.';
+        RAISE EXCEPTION 'The cancel time of a cancelled request must be after the submission time of the corresponding delivery request.';
         RETURN NULL;
     ELSE
         RETURN NEW;
@@ -254,7 +254,7 @@ BEGIN
         RETURN NULL;
     ELSIF EXISTS (SELECT 1 FROM cancelled_requests C WHERE C.id = NEW.request_id) THEN
         -- Nested condition...
-        IF NEW.start_time < (SELECT cancel_time FROM cancelled_requests C WHERE C.id = NEW.request_id) THEN 
+        IF NEW.start_time <= (SELECT cancel_time FROM cancelled_requests C WHERE C.id = NEW.request_id) THEN 
             RAISE EXCEPTION 'The start_time of the return_leg should be after the cancel_time of the request.';
             RETURN NULL;
         END IF;
@@ -300,7 +300,7 @@ BEGIN
 	WHERE leg_id = NEW.leg_id;
 
 	IF NEW.attempt_time <= leg_timestamp THEN
-		RAISE EXCEPTION 'Delivery timestamp should have a value greater than leg timestamp.';
+		RAISE EXCEPTION 'Delivery timestamp should have a value greater than return leg timestamp.';
 		RETURN NULL;
 	END IF;
     RETURN NEW;

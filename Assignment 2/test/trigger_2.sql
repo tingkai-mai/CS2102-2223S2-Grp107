@@ -1,6 +1,7 @@
 -- Package related:
 -- (2) For each delivery request, the IDs of the packages should be consecutive integers starting from 1.
 -- Test with New DR ID = 20
+
 -- Test 1: DR has no packages associated; Insert pkgID = 0. Expected: Error
 BEGIN TRANSACTION;
 SET CONSTRAINTS trigger_1 DEFERRED;
