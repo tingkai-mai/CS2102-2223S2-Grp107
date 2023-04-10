@@ -232,11 +232,7 @@ BEGIN
     IF NEW.leg_id = largest_leg_id + 1 THEN
         RETURN NEW;
     ELSE
-<<<<<<< HEAD
         RAISE EXCEPTION 'Leg ID is invalid. Leg IDs must be consecutive integers starting from 1.';
-=======
-        RAISE EXCEPTION 'Leg ID is invalid. Leg IDs must be consecutive integers starting from 1.'
->>>>>>> 637ad8e2d351fb0184a75ffe6a02439f4fc691d1
         RETURN NULL;
     END IF;
 END;
@@ -288,7 +284,7 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
-CREATE OR REPLACE TRIGGER trigger_13
+CREATE TRIGGER trigger_13
 BEFORE INSERT ON unsuccessful_return_deliveries
 FOR EACH ROW EXECUTE FUNCTION trigger_fn_13();
 
