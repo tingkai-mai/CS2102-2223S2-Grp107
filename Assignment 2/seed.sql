@@ -77,8 +77,7 @@ INSERT INTO unsuccessful_pickups (request_id, pickup_id, handler_id, pickup_time
 (15, 1, 1, '2023-03-30 13:00:00', 'Incorrect address provided'),
 (16, 1, 2, '2023-03-30 13:00:00', 'No access to the building'),
 (17, 1, 3, '2023-03-30 13:00:00', 'Package not ready for pickup'),
-(18, 1, 4, '2023-03-30 13:00:00', 'Customer not available'),
-(19, 1, 5, '2023-03-30 13:00:00', 'Incorrect address provided');
+(18, 1, 4, '2023-03-30 13:00:00', 'Customer not available');
 
 INSERT INTO legs (request_id, leg_id, handler_id, start_time, end_time, destination_facility) VALUES
 (15, 1, 5, '2023-03-30 13:05:00', '2023-03-12 13:30:00', 1),

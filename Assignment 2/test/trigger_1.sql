@@ -31,3 +31,5 @@ SET CONSTRAINTS trigger_1 DEFERRED;
 INSERT INTO delivery_requests (id, customer_id, evaluater_id, status, pickup_addr, pickup_postal, recipient_name, recipient_addr, recipient_postal, submission_time, pickup_date, num_days_needed, price) VALUES
 (20, 7, 2, 'unsuccessful', '77 Cherry St', '10006', 'Carol Jackson', '11 Maple St', '10010', '2023-03-30 12:50:00', '2023-04-01', 2, 15.00);
 COMMIT;
+
+\i setup.sql;

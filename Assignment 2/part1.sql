@@ -232,7 +232,7 @@ BEGIN
     IF NEW.leg_id = largest_leg_id + 1 THEN
         RETURN NEW;
     ELSE
-        RAISE EXCEPTION 'Leg ID is invalid. Leg IDs must be consecutive integers starting from 1.';
+        RAISE EXCEPTION 'Return leg ID is invalid. Return leg IDs must be consecutive integers starting from 1.';
         RETURN NULL;
     END IF;
 END;
