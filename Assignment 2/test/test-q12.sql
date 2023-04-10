@@ -42,15 +42,27 @@ INSERT INTO return_legs (request_id, leg_id, handler_id, start_time, end_time, s
 
 -- Try: Insert a first return leg with start time EQUAL TO the end time of the last existing leg
 -- Expected: Should pass
+-- Result: Passes
 INSERT INTO cancelled_or_unsuccessful_requests (id) VALUES (18);
 INSERT INTO return_legs (request_id, leg_id, handler_id, start_time, end_time, source_facility) VALUES (18, 1, 5, '2023-03-26 15:00:00', '2023-03-26 16:00:00', 1);
 
 -- Try: Insert a first return leg whose start time is BEFORE the cancel_time of the request (assuming a cancelled request exists) 
 -- Expected: Should fail 
--- Result: Unable to invoke that trigger
+-- Result: psql raises exception "the start_time of the return_leg should be after the cancel_time of the request"
 INSERT INTO accepted_requests (id, card_number, payment_time, monitor_id) VALUES (20, '12383578622345678', '2023-03-15 10:30:00', 5);
-INSERT INTO legs (request_id, leg_id, handler_id, start_time, end_time, destination_facility) VALUES (20, 1, 5, '2023-03-15 13:15:00', '2023-03-15 14:00:00', 1);
-INSERT INTO return_legs (request_id, leg_id, handler_id, start_time, end_time, source_facility) VALUES (20, 1, 5, '2023-03-14 14:00:00', '2023-03-14 16:00:00', 1);
+INSERT INTO cancelled_or_unsuccessful_requests (id) VALUES (20);
+INSERT INTO cancelled_requests (id, cancel_time) VALUES (20, '2023-03-29 10:30:00');
+INSERT INTO legs (request_id, leg_id, handler_id, start_time, end_time, destination_facility) VALUES (20, 1, 5, '2023-03-16 13:15:00', '2023-03-16 14:00:00', 1);
+INSERT INTO return_legs (request_id, leg_id, handler_id, start_time, end_time, source_facility) VALUES (20, 1, 5, '2023-03-18 14:00:00', '2023-03-18 16:00:00', 1);
+
+-- Try: Insert a first return leg whose start time is EQUAL TO the cancel_time of the request (assuming a cancelled request exists) 
+-- Expected: Should pass
+-- Result: Passes
+INSERT INTO accepted_requests (id, card_number, payment_time, monitor_id) VALUES (20, '12383578622345678', '2023-03-15 10:30:00', 5);
+INSERT INTO cancelled_or_unsuccessful_requests (id) VALUES (20);
+INSERT INTO cancelled_requests (id, cancel_time) VALUES (20, '2023-03-29 10:30:00');
+INSERT INTO legs (request_id, leg_id, handler_id, start_time, end_time, destination_facility) VALUES (20, 1, 5, '2023-03-16 13:15:00', '2023-03-16 14:00:00', 1);
+INSERT INTO return_legs (request_id, leg_id, handler_id, start_time, end_time, source_facility) VALUES (20, 1, 5, '2023-03-29 10:30:00', '2023-03-18 16:00:00', 1);
 
 -- CLEAN UP
 DELETE FROM legs WHERE request_id = 20 AND leg_id = 1;
