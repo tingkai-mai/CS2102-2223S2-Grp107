@@ -249,7 +249,7 @@ BEGIN
     IF NOT EXISTS (SELECT 1 FROM legs L WHERE L.request_id = NEW.request_id) THEN 
         RAISE EXCEPTION 'There should be an existing leg for the delivery request.';
         RETURN NULL;
-    ELSIF NEW.start_time < (SELECT MAX(end_time) FROM legs L WHERE L.request_id = NEW.request) THEN 
+    ELSIF NEW.start_time < (SELECT MAX(end_time) FROM legs L WHERE L.request_id = NEW.request_id) THEN 
         RAISE EXCEPTION 'The end_time of the last existing leg should be after the start_time of the return leg.';
         RETURN NULL;
     ELSIF EXISTS (SELECT 1 FROM cancelled_requests C WHERE C.id = NEW.request_id) THEN
@@ -297,9 +297,9 @@ DECLARE
 BEGIN
 	SELECT start_time INTO leg_timestamp
 	FROM return_legs L
-	WHERE L.id = NEW.id;
+	WHERE L.leg_id = NEW.leg_id;
 
-	IF NEW.attempt_time <= delivery_timestamp THEN
+	IF NEW.attempt_time <= leg_timestamp THEN
 		RAISE EXCEPTION 'Delivery timestamp should have a value greater than leg timestamp.';
 		RETURN NULL;
 	END IF;

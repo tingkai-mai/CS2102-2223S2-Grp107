@@ -1,0 +1,11 @@
+-- Package related:
+-- (2) For each delivery request, the IDs of the packages should be consecutive integers starting from 1.
+-- Test with New DR ID = 20
+-- Test 1: DR has no packages associated; Insert pkgID = 0. Expected: Error
+-- Test 2: DR has no packages associated; Insert pkgID = 1. Expected: OK
+-- Test 3: DR has no packages associated; Insert pkgID = 2. Expected: Error
+-- Test 4: DR has no packages associated; Insert pkgID = 10. Expected: Error
+-- Test 5: DR has 1 package associated; Insert pkgID = 1. Expected: Error
+-- Test 6: DR has 1 package associated; Insert pkgID = 2. Expected: OK
+-- Test 7: DR has 1 package associated; Insert pkgID = 3. Expected: Error
+-- Test 8: DR has 1 package associated; Insert pkgID = 10. Expected: Error

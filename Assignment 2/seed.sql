@@ -1,3 +1,5 @@
+BEGIN TRANSACTION;
+SET CONSTRAINTS trigger_1 DEFERRED; -- defer trigger 1
 -- customers
 INSERT INTO customers (name, gender, mobile) VALUES
 ('John Doe', 'male', '123-456-7890'),
@@ -26,7 +28,7 @@ INSERT INTO employees (name, gender, dob, title, salary) VALUES
 
 -- delivery_staff
 INSERT INTO delivery_staff (id) VALUES
-(5), (6), (7), (8), (9), (10);
+(1), (2), (3), (4), (5), (6);
 
 -- facilities
 INSERT INTO facilities (address, postal) VALUES
@@ -51,26 +53,6 @@ INSERT INTO delivery_requests (id, customer_id, evaluater_id, status, pickup_add
 (18, 6, 3, 'cancelled', '44 Willow St', '10005', 'Bob Miller', '66 Palm St', '10009', '2023-03-25 09:15:00', '2023-03-26', 1, 10.00),
 (19, 7, 2, 'unsuccessful', '77 Cherry St', '10006', 'Carol Jackson', '11 Maple St', '10010', '2023-03-30 12:50:00', '2023-04-01', 2, 15.00);
 
-INSERT INTO accepted_requests (id, card_number, payment_time, monitor_id) VALUES
-(15, '1234567812345678', '2023-03-10 14:25:00', 5),
-(16, '2345678923456789', '2023-03-15 10:35:00', 6),
-(17, '3456789034567890', '2023-03-20 16:50:00', 7),
-(18, '4567890145678901', '2023-03-25 09:20:00', 8),
-(19, '5678901256789012', '2023-03-30 12:55:00', 9);
-
-INSERT INTO legs (request_id, leg_id, handler_id, start_time, end_time, destination_facility) VALUES
-(15, 1, 5, '2023-03-12 10:00:00', '2023-03-12 10:30:00', 1),
-(15, 2, 5, '2023-03-12 11:00:00', '2023-03-12 11:45:00', 2),
-(16, 1, 6, '2023-03-16 09:00:00', '2023-03-16 09:45:00', 7),
-(16, 2, 6, '2023-03-16 10:15:00', '2023-03-16 11:00:00', 6),
-(17, 1, 7, '2023-03-22 08:00:00', '2023-03-22 08:45:00', 1),
-(17, 2, 7, '2023-03-22 09:15:00', '2023-03-22 10:00:00', 2),
-(18, 1, 8, '2023-03-26 13:00:00', '2023-03-26 13:45:00', 1),
-(18, 2, 8, '2023-03-26 14:15:00', '2023-03-26 15:00:00', 2),
-(19, 1, 9, '2023-04-01 11:00:00', '2023-04-01 11:45:00', 1),
-(19, 2, 9, '2023-04-01 12:15:00', '2023-04-01 13:00:00', 2),
-(19, 3, 9, '2023-04-01 12:15:00', '2023-04-01 13:00:00', 2);
-
 INSERT INTO packages (request_id, package_id, reported_height, reported_width, reported_depth, reported_weight, content, estimated_value, actual_height, actual_width, actual_depth, actual_weight) VALUES
 (12, 1, 20, 15, 10, 2.5, 'Books', 50, 20, 15, 10, 2.5),
 (12, 2, 25, 20, 15, 3.5, 'Clothes', 75, 25, 20, 15, 3.5),
@@ -82,12 +64,43 @@ INSERT INTO packages (request_id, package_id, reported_height, reported_width, r
 (18, 1, 30, 25, 20, 5.0, 'Tools', 150, 30, 25, 20, 5.0),
 (19, 1, 20, 15, 10, 2.5, 'Sports equipment', 100, 20, 15, 10, 2.5);
 
+INSERT INTO accepted_requests (id, card_number, payment_time, monitor_id) VALUES
+(15, '1234567812345678', '2023-03-10 14:25:00', 5),
+(16, '2345678923456789', '2023-03-15 10:35:00', 6),
+(17, '3456789034567890', '2023-03-20 16:50:00', 7),
+(18, '4567890145678901', '2023-03-25 09:20:00', 8),
+(19, '5678901256789012', '2023-03-30 12:55:00', 9);
+
 INSERT INTO unsuccessful_pickups (request_id, pickup_id, handler_id, pickup_time, reason) VALUES
-(15, 1, 8, '2023-04-05 14:00:00', 'Incorrect address provided'),
-(16, 1, 7, '2023-04-05 15:00:00', 'No access to the building'),
-(17, 1, 5, '2023-04-05 16:00:00', 'Package not ready for pickup'),
-(18, 1, 6, '2023-04-05 17:00:00', 'Customer not available'),
-(19, 1, 6, '2023-04-05 18:00:00', 'Incorrect address provided');
+(15, 1, 1, '2023-03-30 13:00:00', 'Incorrect address provided'),
+(16, 1, 2, '2023-03-30 13:00:00', 'No access to the building'),
+(17, 1, 3, '2023-03-30 13:00:00', 'Package not ready for pickup'),
+(18, 1, 4, '2023-03-30 13:00:00', 'Customer not available'),
+(19, 1, 5, '2023-03-30 13:00:00', 'Incorrect address provided');
+
+INSERT INTO legs (request_id, leg_id, handler_id, start_time, end_time, destination_facility) VALUES
+(15, 1, 5, '2023-03-30 13:05:00', '2023-03-12 13:30:00', 1),
+(15, 2, 5, '2023-03-30 13:30:00', '2023-03-12 13:45:00', 2),
+(16, 1, 6, '2023-03-30 13:05:00', '2023-03-12 13:30:00', 1),
+(16, 2, 6, '2023-03-30 13:30:00', '2023-03-12 13:45:00', 2),
+(17, 1, 1, '2023-03-30 13:05:00', '2023-03-12 13:30:00', 1),
+(17, 2, 1, '2023-03-30 13:30:00', '2023-03-12 13:45:00', 2),
+(18, 1, 2, '2023-03-30 13:05:00', '2023-03-12 13:30:00', 1),
+(18, 2, 2, '2023-03-30 13:30:00', '2023-03-12 13:45:00', 2),
+(19, 1, 3, '2023-03-30 13:05:00', '2023-03-12 13:30:00', 1),
+(19, 2, 3, '2023-03-30 13:30:00', '2023-03-12 13:45:00', 2),
+(19, 3, 3, '2023-03-30 13:50:00', '2023-03-12 13:55:00', 2);
+
+-- Ignore this 
+-- (16, 1, 6, '2023-03-16 13:05:00', '2023-03-16 09:45:00', 7),
+-- (16, 2, 6, '2023-03-16 10:15:00', '2023-03-16 11:00:00', 6);
+-- (17, 1, 7, '2023-03-22 08:00:00', '2023-03-22 08:45:00', 1),
+-- (17, 2, 7, '2023-03-22 09:15:00', '2023-03-22 10:00:00', 2),
+-- (18, 1, 8, '2023-03-26 13:00:00', '2023-03-26 13:45:00', 1),
+-- (18, 2, 8, '2023-03-26 14:15:00', '2023-03-26 15:00:00', 2),
+-- (19, 1, 9, '2023-04-01 11:00:00', '2023-04-01 11:45:00', 1),
+-- (19, 2, 9, '2023-04-01 12:15:00', '2023-04-01 13:00:00', 2),
+-- (19, 3, 9, '2023-04-01 13:05:00', '2023-04-01 13:20:00', 2);
 
 INSERT INTO unsuccessful_deliveries (request_id, leg_id, reason, attempt_time) VALUES
 (19, 1, 'Recipient not available', '2023-03-16 09:45:00'),
@@ -109,6 +122,4 @@ INSERT INTO unsuccessful_return_deliveries (request_id, leg_id, reason, attempt_
 (19, 2, 'Return facility closed', '2023-04-16 10:00:00'),
 (19, 3, 'Haha', '2023-04-16 10:00:00');
 
--- Q1
-INSERT INTO delivery_requests (id, customer_id, evaluater_id, status, pickup_addr, pickup_postal, recipient_name, recipient_addr, recipient_postal, submission_time, pickup_date, num_days_needed, price) VALUES
-(21, 4, 2, 'submitted', '88 Elm St', '10003', 'Jane Smith', '77 Pine St', '10008', '2023-03-15 10:30:00', '2023-03-16', 1, 10.00);
+COMMIT;

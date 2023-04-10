@@ -1,0 +1,1 @@
+-- (1) For each delivery request, the IDs of the legs should be consecutive integers starting from 1.
