@@ -5,7 +5,7 @@ BEGIN
     IF EXISTS (SELECT * FROM packages P WHERE P.request_id = NEW.id) THEN
         RETURN NEW;
     ELSE
-        -- RAISE EXCEPTION 'Each delivery request must have at least one package.';
+        RAISE EXCEPTION 'Each delivery request must have at least one package.';
         RETURN NULL;
     END IF; 
 END;
@@ -27,7 +27,7 @@ BEGIN
     IF largest_pkg_id + 1 = NEW.package_id THEN 
         RETURN NEW;
     ELSE
-        -- RAISE EXCEPTION 'Package ID is invalid. Package IDs must be consecutive integers starting from 1';
+        RAISE EXCEPTION 'Package ID is invalid. Package IDs must be consecutive integers starting from 1';
         RETURN NULL;
     END IF; 
 END;
@@ -47,7 +47,7 @@ BEGIN
     IF largest_pickup_id + 1 = NEW.pickup_id THEN 
         RETURN NEW;
     ELSE
-        -- RAISE EXCEPTION 'Unsuccessful pickup ID is invalid. Unsuccessful pickup IDs must be consecutive integers starting from 1';
+        RAISE EXCEPTION 'Unsuccessful pickup ID is invalid. Unsuccessful pickup IDs must be consecutive integers starting from 1';
         RETURN NULL;
     END IF; 
 END;
@@ -70,7 +70,7 @@ BEGIN
         IF NEW.pickup_time > req_submission_time THEN
             RETURN NEW;
         ELSE
-            -- RAISE EXCEPTION 'Timestamp of unsuccessful pickup is invalid.';
+            RAISE EXCEPTION 'Timestamp of unsuccessful pickup is invalid.';
             RETURN NULL;
         END IF;
     -- Check for previous unsuccessful pickup
@@ -82,7 +82,7 @@ BEGIN
         IF NEW.pickup_time > prev_pickup_time AND NEW.pickup_time > req_submission_time THEN
             RETURN NEW;
         ELSE
-            -- RAISE EXCEPTION 'Timestamp of unsuccessful pickup is invalid.';
+            RAISE EXCEPTION 'Timestamp of unsuccessful pickup is invalid.';
             RETURN NULL;
         END IF;
     END IF; 
@@ -103,7 +103,7 @@ BEGIN
     IF largest_leg_id + 1 = NEW.leg_id THEN 
         RETURN NEW;
     ELSE
-        -- RAISE EXCEPTION 'Leg ID is invalid. Leg IDs must be consecutive integers starting from 1';
+        RAISE EXCEPTION 'Leg ID is invalid. Leg IDs must be consecutive integers starting from 1';
         RETURN NULL;
     END IF; 
 END;
@@ -132,7 +132,7 @@ BEGIN
         IF NEW.start_time > prev_time THEN
             RETURN NEW;
         ELSE
-            -- RAISE EXCEPTION 'Start time of first leg is invalid.';
+            RAISE EXCEPTION 'Start time of first leg is invalid.';
             RETURN NULL;
         END IF;
     ELSE
@@ -143,12 +143,12 @@ BEGIN
         AND L.leg_id = NEW.leg_id - 1;
 
         IF prev_leg_endtime IS NULL THEN
-            -- RAISE EXCEPTION 'End time of previous leg cannot be NULL.';
+            RAISE EXCEPTION 'End time of previous leg cannot be NULL.';
             RETURN NULL;
         ELSIF NEW.start_time > prev_leg_endtime THEN
             RETURN NEW;
         ELSE
-            -- RAISE EXCEPTION 'Start time of leg is invalid.';
+            RAISE EXCEPTION 'Start time of leg is invalid.';
             RETURN NULL;
         END IF;
     END IF; 
@@ -168,7 +168,7 @@ BEGIN
     SELECT start_time INTO leg_start_time FROM Legs L WHERE L.leg_id = NEW.leg_id AND NEW.request_id = L.request_id;
     
     IF NEW.attempt_time > leg_start_time THEN
-        -- RAISE EXCEPTION 'The timestamp of each unsuccessful_delivery must be after the start_time of the corresponding leg.';
+        RAISE EXCEPTION 'The timestamp of each unsuccessful_delivery must be after the start_time of the corresponding leg.';
         RETURN NULL;
     ELSE 
         RETURN NEW;
@@ -189,7 +189,7 @@ BEGIN
     SELECT COUNT(*) INTO unsuccessful_deliveries_count FROM unsuccessful_deliveries u WHERE NEW.request_id = u.request_id;
 
     IF (unsuccessful_deliveries_count >= 3) THEN
-        -- RAISE EXCEPTION 'Cannot have more than three unsuccessful deliveries in a delivery request!';
+        RAISE EXCEPTION 'Cannot have more than three unsuccessful deliveries in a delivery request!';
         RETURN NULL;
     END IF;
 
@@ -210,7 +210,7 @@ DECLARE
 BEGIN
     SELECT D.submission_time INTO delivery_req_submission_time FROM delivery_requests D WHERE D.id = NEW.id; 
     IF NEW.cancel_time <= delivery_req_submission_time THEN 
-        -- RAISE EXCEPTION 'The cancel_time of a cancelled request must be after the submission_time of the corresponding delivery request.';
+        RAISE EXCEPTION 'The cancel_time of a cancelled request must be after the submission_time of the corresponding delivery request.';
         RETURN NULL;
     ELSE
         RETURN NEW;
@@ -232,7 +232,7 @@ BEGIN
     IF NEW.leg_id = largest_leg_id + 1 THEN
         RETURN NEW;
     ELSE
-        -- RAISE EXCEPTION 'Leg ID is invalid. Leg IDs must be consecutive integers starting from 1.'
+        RAISE EXCEPTION 'Leg ID is invalid. Leg IDs must be consecutive integers starting from 1.'
         RETURN NULL;
     END IF;
 END;
@@ -247,15 +247,15 @@ CREATE OR REPLACE FUNCTION trigger_fn_12() RETURNS TRIGGER
 AS $$
 BEGIN
     IF NOT EXISTS (SELECT 1 FROM legs L WHERE L.request_id = NEW.request_id) THEN 
-        -- RAISE EXCEPTION 'There should be an existing leg for the delivery request.';
+        RAISE EXCEPTION 'There should be an existing leg for the delivery request.';
         RETURN NULL;
-    ELSIF NEW.start_time < (SELECT MAX(end_time) FROM legs L WHERE L.request_id = NEW.request) THEN 
-        -- RAISE EXCEPTION 'The end_time of the last existing leg should be after the start_time of the return leg.';
+    ELSIF NEW.start_time < (SELECT MAX(end_time) FROM legs L WHERE L.request_id = NEW.request_id) THEN 
+        RAISE EXCEPTION 'The end_time of the last existing leg should be after the start_time of the return leg.';
         RETURN NULL;
     ELSIF EXISTS (SELECT 1 FROM cancelled_requests C WHERE C.id = NEW.request_id) THEN
         -- Nested condition...
         IF NEW.start_time < (SELECT cancel_time FROM cancelled_requests C WHERE C.id = NEW.request_id) THEN 
-            -- RAISE EXCEPTION 'The start_time of the return_leg should be after the cancel_time of the request.';
+            RAISE EXCEPTION 'The start_time of the return_leg should be after the cancel_time of the request.';
             RETURN NULL;
         END IF;
     END IF;
@@ -276,7 +276,7 @@ BEGIN
     SELECT COUNT(*) INTO unsuccessful_return_deliveries_count FROM unsuccessful_return_deliveries u WHERE NEW.request_id = u.request_id;
 
     IF (unsuccessful_return_deliveries_count >= 3) THEN
-        -- RAISE EXCEPTION 'Cannot have more than three unsuccessful return deliveries in a delivery request!';
+        RAISE EXCEPTION 'Cannot have more than three unsuccessful return deliveries in a delivery request!';
         RETURN NULL;
     END IF;
 
@@ -296,11 +296,11 @@ DECLARE
 	leg_timestamp TIMESTAMP;
 BEGIN
 	SELECT start_time INTO leg_timestamp
-	FROM return_legs L
-	WHERE L.id = NEW.id;
+	FROM return_legs 
+	WHERE leg_id = NEW.leg_id;
 
-	IF NEW.attempt_time <= delivery_timestamp THEN
-		-- RAISE EXCEPTION 'Delivery timestamp should have a value greater than leg timestamp.';
+	IF NEW.attempt_time <= leg_timestamp THEN
+		RAISE EXCEPTION 'Delivery timestamp should have a value greater than leg timestamp.';
 		RETURN NULL;
 	END IF;
     RETURN NEW;
