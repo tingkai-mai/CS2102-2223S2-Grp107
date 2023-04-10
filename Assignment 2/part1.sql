@@ -232,7 +232,11 @@ BEGIN
     IF NEW.leg_id = largest_leg_id + 1 THEN
         RETURN NEW;
     ELSE
+<<<<<<< HEAD
         RAISE EXCEPTION 'Leg ID is invalid. Leg IDs must be consecutive integers starting from 1.';
+=======
+        RAISE EXCEPTION 'Leg ID is invalid. Leg IDs must be consecutive integers starting from 1.'
+>>>>>>> 637ad8e2d351fb0184a75ffe6a02439f4fc691d1
         RETURN NULL;
     END IF;
 END;
@@ -284,8 +288,8 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
-CREATE TRIGGER trigger_13
-BEFORE INSERT ON unsuccessful_deliveries
+CREATE OR REPLACE TRIGGER trigger_13
+BEFORE INSERT ON unsuccessful_return_deliveries
 FOR EACH ROW EXECUTE FUNCTION trigger_fn_13();
 
 
@@ -296,8 +300,8 @@ DECLARE
 	leg_timestamp TIMESTAMP;
 BEGIN
 	SELECT start_time INTO leg_timestamp
-	FROM return_legs L
-	WHERE L.leg_id = NEW.leg_id;
+	FROM return_legs 
+	WHERE leg_id = NEW.leg_id;
 
 	IF NEW.attempt_time <= leg_timestamp THEN
 		RAISE EXCEPTION 'Delivery timestamp should have a value greater than leg timestamp.';
