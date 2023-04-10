@@ -1,3 +1,5 @@
+\set QUIET on
+
 BEGIN TRANSACTION;
 SET CONSTRAINTS trigger_1 DEFERRED; -- defer trigger 1
 -- customers

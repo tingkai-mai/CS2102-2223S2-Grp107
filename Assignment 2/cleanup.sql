@@ -1,3 +1,6 @@
+\set QUIET on
+SET client_min_messages TO warning;
+
 DROP SCHEMA public CASCADE;
 
 CREATE SCHEMA public;
