@@ -114,7 +114,7 @@ BEFORE INSERT ON legs
 FOR EACH ROW EXECUTE FUNCTION trigger_fn_5();
 
 -- Q2 & 3 Legs
-CREATE OR REPLACE FUNCTION trigger_fn_6() RETURNS TRIGGER
+CREATE OR REPLACE FUNCTION trigger_fn_6_7() RETURNS TRIGGER
 AS $$
 DECLARE
     prev_time TIMESTAMP;
@@ -155,33 +155,12 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
-CREATE TRIGGER trigger_6
+CREATE TRIGGER trigger_6_7
 BEFORE INSERT ON legs
-FOR EACH ROW EXECUTE FUNCTION trigger_fn_6();
-
--- Q8 Unsuccessful deliveries
-CREATE OR REPLACE FUNCTION trigger_fn_8() RETURNS TRIGGER
-AS $$ 
-DECLARE 
-    leg_start_time TIMESTAMP;
-BEGIN
-    SELECT start_time INTO leg_start_time FROM Legs L WHERE L.leg_id = NEW.leg_id AND NEW.request_id = L.request_id;
-    
-    IF NEW.attempt_time <= leg_start_time THEN
-        RAISE EXCEPTION 'The timestamp of each unsuccessful delivery must be after the start time of the corresponding leg.';
-        RETURN NULL;
-    ELSE 
-        RETURN NEW;
-    END IF;
-END;
-$$ LANGUAGE plpgsql;
-
-CREATE TRIGGER trigger_8
-BEFORE INSERT ON unsuccessful_deliveries
-FOR EACH ROW EXECUTE FUNCTION trigger_fn_8();
+FOR EACH ROW EXECUTE FUNCTION trigger_fn_6_7();
 
 -- Q9 For each delivery request, there can only be at most three unsuccessful deliveries
-CREATE OR REPLACE FUNCTION trigger_fn_9() RETURNS TRIGGER
+CREATE OR REPLACE FUNCTION trigger_fn_8() RETURNS TRIGGER
 AS $$
 DECLARE
     unsuccessful_deliveries_count INTEGER;
@@ -197,10 +176,30 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
+CREATE TRIGGER trigger_8
+BEFORE INSERT ON unsuccessful_deliveries
+FOR EACH ROW EXECUTE FUNCTION trigger_fn_8();
+
+-- Q8 Unsuccessful deliveries
+CREATE OR REPLACE FUNCTION trigger_fn_9() RETURNS TRIGGER
+AS $$ 
+DECLARE 
+    leg_start_time TIMESTAMP;
+BEGIN
+    SELECT start_time INTO leg_start_time FROM Legs L WHERE L.leg_id = NEW.leg_id AND NEW.request_id = L.request_id;
+    
+    IF NEW.attempt_time <= leg_start_time THEN
+        RAISE EXCEPTION 'The timestamp of each unsuccessful delivery must be after the start time of the corresponding leg.';
+        RETURN NULL;
+    ELSE 
+        RETURN NEW;
+    END IF;
+END;
+$$ LANGUAGE plpgsql;
+
 CREATE TRIGGER trigger_9
 BEFORE INSERT ON unsuccessful_deliveries
 FOR EACH ROW EXECUTE FUNCTION trigger_fn_9();
-
 
 -- Q10 Cancelled requests
 CREATE OR REPLACE FUNCTION trigger_fn_10() RETURNS TRIGGER
