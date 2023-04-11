@@ -22,7 +22,7 @@ BEGIN
     SELECT COALESCE(MAX(id), 0) INTO req_id FROM delivery_requests;
     req_id := req_id + 1;
     
-    SET CONSTRAINTS constraint_delivery_request_has_package DEFERRED;
+    SET CONSTRAINTS trigger_1 DEFERRED;
     INSERT INTO delivery_requests VALUES (req_id, customer_id, evaluator_id, 'submitted', pickup_addr, pickup_postal, recipient_name,
     recipient_addr, recipient_postal, submission_time, NULL, NULL, NULL);
     FOR i IN 1..package_num LOOP
