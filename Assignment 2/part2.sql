@@ -145,49 +145,46 @@ END;
 $$ LANGUAGE plpgsql;
 
 CREATE
-OR REPLACE FUNCTION view_trajectory(request_id INTEGER) RETURNS TABLE (
+OR REPLACE FUNCTION view_trajectory(haha INTEGER) RETURNS TABLE (
     source_addr TEXT,
     destination_addr TEXT,
     start_time TIMESTAMP,
     end_time TIMESTAMP
 ) AS $$ 
     DECLARE
-        prev_r RECORD;
+        flag BOOLEAN;
+        prev_r RECORD; 
         next_r RECORD; 
         r RECORD;
-        legs_curs CURSOR FOR (SELECT * FROM legs l JOIN facilities f ON l.destination_facility = f.id WHERE request_id = l.request_id);
-        return_legs_curs CURSOR FOR (SELECT * FROM return_legs r JOIN facilities f ON r.source_facility = f.id WHERE request_id = r.request_id);
-        
+        legs_curs SCROLL CURSOR FOR (SELECT * FROM legs l LEFT JOIN facilities f ON l.destination_facility = f.id WHERE haha = l.request_id);
+        return_legs_curs SCROLL CURSOR FOR (SELECT * FROM return_legs rl LEFT JOIN facilities f ON rl.source_facility = f.id WHERE haha = rl.request_id);
+         
     BEGIN
         -- Loop through legs table
         OPEN legs_curs;
+            FETCH FIRST FROM legs_curs INTO r;
+            SELECT D.pickup_addr INTO source_addr FROM delivery_requests D WHERE D.id = haha;
+            destination_addr := r.address;
+            start_time := r.start_time;
+            end_time := r.end_time;
+            RETURN NEXT;
+            prev_r := r;
             LOOP
-                FETCH legs_curs INTO r;
+                FETCH NEXT FROM legs_curs INTO r;
                 EXIT WHEN NOT FOUND;
-                FETCH PRIOR FROM legs_curs INTO prev_r;
-                
-                IF NOT FOUND THEN
-                    SELECT D.pickup_addr INTO source_addr FROM delivery_requests D WHERE D.id = request_id;
+                IF r.destination_facility IS NULL THEN -- Last row in legs. r.address assumed to be NULL if no return legs exist
+                    source_addr := prev_r.address;
+                    SELECT D.recipient_addr INTO destination_addr FROM delivery_requests D WHERE D.id = haha;
+                    start_time := r.start_time;
+                    end_time := r.end_time; 
+                ELSE
+                    source_addr := prev_r.address;
                     destination_addr := r.address;
                     start_time := r.start_time;
                     end_time := r.end_time;
-                ELSE 
-                    FETCH NEXT FROM legs_curs INTO r;
-                    IF r.address IS NULL THEN -- Last row in legs. r.address assumed to be NULL if no return legs exist
-                        source_addr := prev_r.address;
-                        SELECT D.recipient_addr INTO destination_addr FROM delivery_requests D WHERE D.id = request_id;
-                        start_time := r.start_time;
-                        end_time := r.end_time; 
-                    ELSE
-                        source_addr := prev_r.address;
-                        destination_addr := r.address;
-                        start_time := r.start_time;
-                        end_time := r.end_time;
-                    END IF;
-                END IF;
-                
+                END IF; 
                 RETURN NEXT;
-                FETCH NEXT FROM legs_curs INTO r;
+                prev_r := r;
             END LOOP;
         CLOSE legs_curs;
         
@@ -196,9 +193,10 @@ OR REPLACE FUNCTION view_trajectory(request_id INTEGER) RETURNS TABLE (
             LOOP
                 FETCH return_legs_curs INTO r;
                 EXIT WHEN NOT FOUND;
+                
                 FETCH NEXT FROM return_legs_curs INTO next_r;
                 IF NOT FOUND THEN
-                    SELECT D.recipient_addr INTO destination_addr FROM delivery_requests D WHERE D.id = request_id;
+                    SELECT D.recipient_addr INTO destination_addr FROM delivery_requests D WHERE D.id = haha;
                     source_addr := r.address;
                     start_time := r.start_time;
                     end_time := r.end_time;
@@ -209,6 +207,7 @@ OR REPLACE FUNCTION view_trajectory(request_id INTEGER) RETURNS TABLE (
                     end_time := r.end_time; 
                 END IF;
                 RETURN NEXT;
+                FETCH PRIOR FROM return_legs_curs INTO prev_r;
            END LOOP;
         CLOSE return_legs_curs;        
     END;

@@ -82,6 +82,7 @@ INSERT INTO unsuccessful_pickups (request_id, pickup_id, handler_id, pickup_time
 INSERT INTO legs (request_id, leg_id, handler_id, start_time, end_time, destination_facility) VALUES
 (15, 1, 5, '2023-03-30 13:05:00', '2023-03-12 13:30:00', 1),
 (15, 2, 5, '2023-03-30 13:30:00', '2023-03-12 13:45:00', 2),
+(15, 3, 5, '2023-03-31 10:00:00', '2023-03-31 10:30:00', NULL),
 (16, 1, 6, '2023-03-30 13:05:00', '2023-03-12 13:30:00', 7),
 (16, 2, 6, '2023-03-30 13:30:00', '2023-03-12 13:45:00', 6),
 (17, 1, 1, '2023-03-30 13:05:00', '2023-03-12 13:30:00', 1),
@@ -109,14 +110,20 @@ INSERT INTO unsuccessful_deliveries (request_id, leg_id, reason, attempt_time) V
 (19, 3, 'Haha', '2023-03-31 09:50:00');
 
 INSERT INTO cancelled_or_unsuccessful_requests (id) VALUES 
-(19);
+(19),
+(16),
+(17);
 
 -- Cancelled or unsuccessful
 -- We only test unsuccessful DR for now
 INSERT INTO return_legs (request_id, leg_id, handler_id, start_time, end_time, source_facility) VALUES
 (19, 1, 5, '2023-03-15 12:00:00', '2023-03-15 12:45:00', 2),
 (19, 2, 5, '2023-03-15 13:15:00', '2023-03-15 14:00:00', 1),
-(19, 3, 5, '2023-03-20 10:00:00', '2023-03-20 10:45:00', 2);
+(19, 3, 5, '2023-03-20 10:00:00', '2023-03-20 10:45:00', 2),
+(16, 1, 5, '2023-03-15 12:00:00', '2023-03-15 12:45:00', 6),
+(16, 2, 5, '2023-03-15 13:15:00', '2023-03-15 14:00:00', 8),
+(17, 1, 5, '2023-04-15 13:15:00', '2023-04-15 14:00:00', 2);
+
 
 INSERT INTO unsuccessful_return_deliveries (request_id, leg_id, reason, attempt_time) VALUES
 (19, 1, 'Incorrect return address', '2023-03-16 10:00:00'),
