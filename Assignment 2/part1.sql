@@ -70,7 +70,7 @@ BEGIN
         IF NEW.pickup_time > req_submission_time THEN
             RETURN NEW;
         ELSE
-            RAISE EXCEPTION 'Timestamp of unsuccessful pickup is invalid.';
+            RAISE EXCEPTION 'Timestamp of first unsuccessful pickup is invalid.';
             RETURN NULL;
         END IF;
     -- Check for previous unsuccessful pickup
@@ -79,7 +79,7 @@ BEGIN
         FROM unsuccessful_pickups U 
         WHERE U.request_id = NEW.request_id
         AND U.pickup_id = NEW.pickup_id - 1;
-        IF NEW.pickup_time > prev_pickup_time AND NEW.pickup_time > req_submission_time THEN
+        IF NEW.pickup_time > prev_pickup_time THEN
             RETURN NEW;
         ELSE
             RAISE EXCEPTION 'Timestamp of unsuccessful pickup is invalid.';

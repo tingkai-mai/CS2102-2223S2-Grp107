@@ -28,7 +28,7 @@ BEGIN
     FOR i IN 1..package_num LOOP
         INSERT INTO packages (
         request_id, package_id, reported_height, reported_width, reported_depth,
-        reported_weight, content, estimated_value
+        reported_weight, content, estimated_value 
         )
         VALUES (
         req_id, i, reported_height[i], reported_width[i], reported_depth[i],
@@ -40,7 +40,7 @@ $$ LANGUAGE plpgsql;
 
 CREATE
 OR REPLACE PROCEDURE resubmit_request(
-    request_id INTEGER,
+    input_req_id INTEGER,
     evaluator_id INTEGER,
     submission_time TIMESTAMP,
     reported_height INTEGER [],
@@ -51,7 +51,7 @@ OR REPLACE PROCEDURE resubmit_request(
 DECLARE
     curs CURSOR FOR (
         SELECT * FROM Packages p 
-        WHERE p.request_id = request_id 
+        WHERE p.request_id = input_req_id 
         ORDER BY package_id 
         ASC);
     r RECORD;
@@ -67,9 +67,9 @@ DECLARE
     estimated_value NUMERIC[];
 BEGIN
     -- Update old DR
-    UPDATE delivery_requests d 
-    SET delivery_status = 'cancelled' 
-    WHERE d.id = request_id;
+    UPDATE delivery_requests
+    SET status = 'cancelled' 
+    WHERE id = input_req_id;
     
     -- Create new DR
     SELECT COALESCE(MAX(id), 0) INTO req_id FROM delivery_requests;
@@ -77,9 +77,9 @@ BEGIN
     
     SELECT d.customer_id, d.pickup_addr, d.pickup_postal, d.recipient_name, d.recipient_addr, d.recipient_postal 
     INTO customer_id, pickup_addr, pickup_postal, recipient_name, recipient_addr, recipient_postal 
-    FROM delivery_requests d WHERE d.id = request_id; 
+    FROM delivery_requests d WHERE d.id = input_req_id; 
     
-    SELECT COUNT(*) INTO package_num FROM Packages p WHERE p.request_id = request_id; 
+    SELECT COUNT(*) INTO package_num FROM Packages p WHERE p.request_id = input_req_id; 
 
     OPEN curs;
     LOOP
@@ -115,16 +115,16 @@ $$ LANGUAGE plpgsql;
 
 CREATE
 OR REPLACE PROCEDURE insert_leg(
-    request_id INTEGER,
+    target_request_id INTEGER,
     handler_id INTEGER,
     start_time TIMESTAMP,
     destination_facility INTEGER
 ) AS $$ 
 DECLARE 
-    leg_id INT;
+    new_leg_id INT;
 BEGIN
-    SELECT COALESCE(MAX(leg_id), 0) INTO leg_id FROM legs L WHERE L.request_id = request_id;
-    leg_id := leg_id + 1;
+    SELECT COALESCE(MAX(L.leg_id), 0) INTO new_leg_id FROM legs L WHERE L.request_id = target_request_id;
+    new_leg_id := new_leg_id + 1;
 
     INSERT INTO legs (
         request_id, 
@@ -134,8 +134,8 @@ BEGIN
         end_time, 
         destination_facility 
     ) VALUES (
-        request_id, 
-        leg_id, 
+        target_request_id, 
+        new_leg_id, 
         handler_id, 
         start_time, 
         NULL, 
@@ -156,8 +156,8 @@ OR REPLACE FUNCTION view_trajectory(haha INTEGER) RETURNS TABLE (
         prev_r RECORD; 
         next_r RECORD; 
         r RECORD;
-        legs_curs SCROLL CURSOR FOR (SELECT * FROM legs l LEFT JOIN facilities f ON l.destination_facility = f.id WHERE haha = l.request_id);
-        return_legs_curs SCROLL CURSOR FOR (SELECT * FROM return_legs rl LEFT JOIN facilities f ON rl.source_facility = f.id WHERE haha = rl.request_id);
+        legs_curs SCROLL CURSOR FOR (SELECT * FROM legs l LEFT JOIN facilities f ON l.destination_facility = f.id WHERE haha = l.request_id ORDER BY l.leg_id ASC);
+        return_legs_curs SCROLL CURSOR FOR (SELECT * FROM return_legs rl JOIN facilities f ON rl.source_facility = f.id WHERE haha = rl.request_id ORDER BY rl.leg_id ASC);
          
     BEGIN
         -- Loop through legs table
@@ -175,7 +175,7 @@ OR REPLACE FUNCTION view_trajectory(haha INTEGER) RETURNS TABLE (
                 IF r.destination_facility IS NULL THEN -- Last row in legs. r.address assumed to be NULL if no return legs exist
                     source_addr := prev_r.address;
                     SELECT D.recipient_addr INTO destination_addr FROM delivery_requests D WHERE D.id = haha;
-                    start_time := r.start_time;
+                    start_time := r.start_time; 
                     end_time := r.end_time; 
                 ELSE
                     source_addr := prev_r.address;
@@ -196,7 +196,7 @@ OR REPLACE FUNCTION view_trajectory(haha INTEGER) RETURNS TABLE (
                 
                 FETCH NEXT FROM return_legs_curs INTO next_r;
                 IF NOT FOUND THEN
-                    SELECT D.recipient_addr INTO destination_addr FROM delivery_requests D WHERE D.id = haha;
+                    SELECT D.pickup_addr INTO destination_addr FROM delivery_requests D WHERE D.id = haha;
                     source_addr := r.address;
                     start_time := r.start_time;
                     end_time := r.end_time;
@@ -217,7 +217,6 @@ CREATE
 OR REPLACE FUNCTION get_top_delivery_persons(k INTEGER) RETURNS TABLE (employee_id INTEGER) AS $$ 
 BEGIN
     RETURN QUERY
-        -- Check if after group by, will the count become 1 for each group
         SELECT handler_id FROM (
             SELECT handler_id, COUNT(*) as trip_count
             FROM (SELECT handler_id FROM legs
@@ -233,78 +232,36 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
--- SELECT handler_id
--- FROM
--- (
--- SELECT l1.handler_id, 
--- ( (SELECT COUNT(*) FROM legs l1 WHERE l1.handler_id = l.handler_id GROUP BY l1.handler_id) +
--- (SELECT COUNT(*) FROM return_legs r WHERE r.handler_id = l.handler_id GROUP BY r.handler_id) + 
--- (SELECT COUNT(*) FROM unsuccessful_pickups u WHERE u.handler_id = l.handler_id GROUP BY u.handler_id) ) AS TOTAL_COUNT 
--- FROM legs l
--- )
--- ORDER BY TOTAL_COUNT DESC
--- LIMIT K
-
-
-CREATE
-OR REPLACE FUNCTION get_top_connections(k INTEGER) RETURNS TABLE(
+CREATE OR REPLACE FUNCTION get_top_connections(k INTEGER) RETURNS TABLE(
     source_facility_id INTEGER,
     destination_facility_id INTEGER
 ) AS $$ 
 BEGIN
     RETURN QUERY
-    WITH cte1 AS (SELECT F1.id, F2.id, L1.leg_id, L2.leg_id
+    WITH cte1 AS (SELECT F1.id AS src, F2.id AS dest
                 FROM facilities F1, facilities F2, legs L1, legs L2 
                 WHERE L1.destination_facility = F1.id AND
                 L2.destination_facility = F2.id AND
-                F1.id <> F2.id AND
                 L1.leg_id = L2.leg_id-1 AND
                 L1.request_id = L2.request_id),
-        cte2 AS (SELECT F1.id, F2.id, R1.leg_id, R2.leg_id
+        cte2 AS (SELECT F1.id AS src, F2.id AS dest
                 FROM facilities F1, facilities F2, return_legs R1, return_legs R2
-                WHERE R1.destination_facility = F1.id AND
-                R2.destination_facility = F2.id AND
+                WHERE R1.source_facility = F1.id AND
+                R2.source_facility = F2.id AND
                 R1.leg_id = R2.leg_id-1 AND
                 R1.request_id = R2.request_id)
 
     SELECT T1.source_facility_id, T1.destination_facility_id
     FROM 
     (
-        SELECT F1.id AS source_facility_id, 
-            F2.id AS destination_facility_id, 
+        SELECT tmp.src AS source_facility_id, 
+            tmp.dest AS destination_facility_id, 
             COUNT(*) AS connect_count 
         FROM (SELECT * FROM cte1 
         UNION ALL SELECT * FROM cte2) AS tmp
-        GROUP BY F1.id, F2.id
-        ORDER BY connect_count
-        
+        GROUP BY tmp.src, tmp.dest
+        ORDER BY connect_count DESC, (tmp.src, tmp.dest) ASC
     ) AS T1
-    LIMIT k;
-END;
-$$ LANGUAGE plpgsql;
-
-CREATE OR REPLACE FUNCTION get_top_connections(k INTEGER)
-RETURNS TABLE(
-    source_facility_id INTEGER,
-    destination_facility_id INTEGER
-) AS $$
-BEGIN
-    RETURN QUERY
-    SELECT source_facility_id, destination_facility_id
-    FROM (
-        SELECT l.source_facility_id, l.destination_facility_id, COUNT(*) AS cnt
-        FROM (
-            SELECT l1.request_id, l1.destination_facility AS source_facility_id, l2.destination_facility AS destination_facility_id
-            FROM legs l1
-            JOIN legs l2 ON l1.request_id = l2.request_id AND l1.leg_id + 1 = l2.leg_id
-            UNION ALL
-            SELECT r1.request_id, r1.source_facility AS source_facility_id, r2.source_facility AS destination_facility_id
-            FROM return_legs r1
-            JOIN return_legs r2 ON r1.request_id = r2.request_id AND r1.leg_id + 1 = r2.leg_id
-        ) AS l
-        GROUP BY l.source_facility_id, l.destination_facility_id
-    ) AS t
-    ORDER BY cnt DESC, source_facility_id ASC, destination_facility_id ASC
     LIMIT k;
 END;
 $$ LANGUAGE plpgsql;

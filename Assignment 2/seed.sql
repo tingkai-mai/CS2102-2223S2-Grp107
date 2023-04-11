@@ -64,7 +64,8 @@ INSERT INTO packages (request_id, package_id, reported_height, reported_width, r
 (16, 1, 20, 15, 10, 2.5, 'Shoes', 120, 20, 15, 10, 2.5),
 (17, 1, 25, 20, 15, 3.5, 'Stationery', 60, 25, 20, 15, 3.5),
 (18, 1, 30, 25, 20, 5.0, 'Tools', 150, 30, 25, 20, 5.0),
-(19, 1, 20, 15, 10, 2.5, 'Sports equipment', 100, 20, 15, 10, 2.5);
+(19, 1, 20, 15, 10, 2.5, 'Sports equipment', 100, 20, 15, 10, 2.5),
+(19, 2, 15, 10, 5, 2.0, 'PE equipment', 100, 20, 15, 10, 2.5);
 
 INSERT INTO accepted_requests (id, card_number, payment_time, monitor_id) VALUES
 (15, '1234567812345678', '2023-03-10 14:25:00', 5),
