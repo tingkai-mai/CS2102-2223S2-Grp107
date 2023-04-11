@@ -74,8 +74,8 @@ INSERT INTO return_legs (request_id, leg_id, handler_id, start_time, end_time, s
 -- 47 should fail 
 
 -- Try: Insert a first return leg whose start time is EQUAL TO the cancel_time of the request (assuming a cancelled request exists) 
--- Expected: Should pass
--- Result: Passes
+-- Expected: Should fail
+-- Result: Fails
 BEGIN TRANSACTION;
 SET CONSTRAINTS trigger_1 DEFERRED;
 INSERT INTO delivery_requests (id, customer_id, evaluater_id, status, pickup_addr, pickup_postal, recipient_name, recipient_addr, recipient_postal, submission_time, pickup_date, num_days_needed, price) VALUES (20, 4, 2, 'cancelled', '88 Elm St', '10003', 'Jane Smith', '77 Pine St', '10008', '2023-03-15 10:00:00', '2023-03-16', 1, 10.00);

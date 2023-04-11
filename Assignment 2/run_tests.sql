@@ -15,4 +15,5 @@
 -- \i test/trigger_14.sql;
 -- \i test/submit_requests.sql;
 -- \i test/resubmit_request.sql;
+-- \i test/insert_leg.sql;
 \i test/insert_leg.sql;

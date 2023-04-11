@@ -6,7 +6,7 @@ CALL resubmit_request(15, 5, '2023-03-21 16:45:00', ARRAY[40], ARRAY[40],ARRAY[4
 
 
 -- SELECT * FROM packages;
-SELECT * FROM delivery_requests;
+-- SELECT * FROM delivery_requests;
 -- Check
 -- 1. the exisiting delivery request is marked as cancelled
 -- 2. new DR set to submitted

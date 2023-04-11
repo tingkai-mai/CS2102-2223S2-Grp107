@@ -21,7 +21,7 @@ CALL submit_request(
     2, ARRAY[20, 30], ARRAY[10, 15], ARRAY[15, 25], ARRAY[5, 10], ARRAY['Electronics', 'Clothing'], ARRAY[200.00, 100.00]
 );
 
-SELECT * FROM packages;
+-- SELECT * FROM packages;
 -- SELECT * FROM delivery_requests;
 
 -- CALL submit_request(

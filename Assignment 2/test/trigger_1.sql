@@ -24,7 +24,6 @@ INSERT INTO packages (request_id, package_id, reported_height, reported_width, r
 INSERT INTO packages (request_id, package_id, reported_height, reported_width, reported_depth, reported_weight, content, estimated_value, actual_height, actual_width, actual_depth, actual_weight) VALUES
 (20, 2, 20, 15, 10, 2.5, 'Sports equipment', 100, 20, 15, 10, 2.5);
 
-SELECT * FROM delivery_requests;
 COMMIT;
 \i setup.sql;
 

@@ -1,29 +1,26 @@
--- Q9 For each delivery request, there can only be at most three unsuccessful deliveries
--- CREATE OR REPLACE FUNCTION trigger_fn_9() RETURNS TRIGGER
--- AS $$
--- DECLARE
---     unsuccessful_deliveries_count INTEGER;
--- BEGIN
---     SELECT COUNT(*) INTO unsuccessful_deliveries_count FROM unsuccessful_deliveries u WHERE NEW.request_id = u.request_id;
+--q9 SUCCESS
+BEGIN TRANSACTION;
+INSERT INTO unsuccessful_deliveries (request_id, leg_id, reason, attempt_time) VALUES
+(19, 2, 'Recipient not available', '2023-04-01 11:40:00'),
+(19, 3, 'Hehe', '2023-04-01 13:45:00');
+COMMIT;
 
---     IF (unsuccessful_deliveries_count >= 3) THEN
---         RAISE EXCEPTION 'Cannot have more than three unsuccessful deliveries in a delivery request!';
---         RETURN NULL;
---     END IF;
+\i setup.sql;
 
---     RETURN NEW;
--- END;
--- $$ LANGUAGE plpgsql;
+-- q9, FAILURE, time inserted = leg start time
+BEGIN TRANSACTION;
+INSERT INTO unsuccessful_deliveries (request_id, leg_id, reason, attempt_time) VALUES 
+(19, 2, 'Haha', '2023-03-30 13:30:00');
+COMMIT;
 
--- CREATE TRIGGER trigger_9
--- BEFORE INSERT ON unsuccessful_deliveries
--- FOR EACH ROW EXECUTE FUNCTION trigger_fn_9();
+\i setup.sql;
 
--- Try: Insert more than three unsuccessful deliveries
--- Expected: Should fail
--- Result: psql raises an exception
-INSERT INTO legs (request_id, leg_id, handler_id, start_time, end_time, destination_facility) VALUES (19, 4, 3, '2023-04-22 10:00:00', '2023-04-22 12:30:00', 1);
-INSERT INTO unsuccessful_deliveries (request_id, leg_id, reason, attempt_time) VALUES (19, 4, 'This one should fail', '2023-04-30 12:45:00');
+-- q9, FAILURE, time inserted < leg start time
+BEGIN TRANSACTION;
 
--- CLEAN UP
--- DELETE FROM legs WHERE request_id = 19 AND leg_id = 4;
+INSERT INTO unsuccessful_deliveries (request_id, leg_id, reason, attempt_time) VALUES 
+(19, 2, 'Haha', '2023-03-01 13:20:00');
+COMMIT;
+
+\i setup.sql;
+
